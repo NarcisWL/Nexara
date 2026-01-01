@@ -77,6 +77,19 @@
 - **颜色归一**: 创建 `src/theme/colors.ts` 作为唯一颜色真理源。
 - **核心链路清理**: 完成了 `(tabs)/settings`, `(tabs)/chat`, `BackupSettings`, `GlobalRagConfigPanel`, `SwipeableAgentItem` 的重构。
 
+### v3.7 - Token 计费体系与可视化 (2026-01-02)
+**目标**: 建立透明、可回溯的 LLM 消耗追踪体系，解决 API 计费不明的问题。
+**核心架构**:
+- **混合计费 (Hybrid Billing)**: 优先使用 API 返回的真实 Usage，缺失时优雅降级为本地估算 (IsEstimated 标记)。
+- **全局账本**: 引入 `TokenStatsStore`，跨会话累积 Input/Output/System (RAG) 消耗。
+- **全链路追踪**:
+  - **Chat**: 捕获 LLM API Usage。
+  - **RAG**: 捕获 Query Rewrite 和 Embedding (Document & Query) 的 Token 消耗。
+
+**可视化**:
+- **会话级**: `TokenStatsModal` 支持显示估算标记 (≈) 和会话重置。
+- **全局级**: 新增 `Settings -> Token Usage` 面板，支持多模型分布统计与全局重置。
+
 ---
 
 ## 技术债务 / 待改进项 (Technical Debt)

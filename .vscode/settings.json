@@ -13,5 +13,7 @@
         "**/node_modules/**",
         "**/android/app/build/**",
         "**/android/.gradle/**"
-    ]
+    ],
+    "java.compile.nullAnalysis.mode": "disabled",
+    "java.configuration.updateBuildConfiguration": "automatic"
 }
