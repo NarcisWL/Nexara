@@ -1,4 +1,17 @@
 {
-    "java.compile.nullAnalysis.mode": "automatic",
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/android/app/build": true,
+        "**/android/.gradle": true
+    },
+    "files.watcherExclude": {
+        "**/node_modules/**": true,
+        "**/android/app/build/**": true,
+        "**/android/.gradle/**": true
+    },
+    "java.import.exclusions": [
+        "**/node_modules/**",
+        "**/android/app/build/**",
+        "**/android/.gradle/**"
+    ]
 }

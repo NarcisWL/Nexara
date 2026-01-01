@@ -202,3 +202,25 @@ onPress={() => {
 - [ ] API 设计文档
 - [ ] 组件库使用指南
 - [ ] 部署流程文档
+
+## Release Protocol (2026-01-01)
+### 版本号规则
+1. **Patch Update (+0.0.1)**: 小调整、Bug 修复、视觉微调。
+2. **Minor Update (+0.1.0)**: 重构模块（RAG, Retrieval）、新增大型功能。
+3. **Major Update (+1.0.0)**: 迭代累计或手动触发。
+
+### 构建清单
+- **Checklist**:
+  - [ ] `package.json` version
+  - [ ] `app.json` version & versionCode
+  - [ ] `android/app/build.gradle` versionName & versionCode
+  - [ ] `settings.tsx` Dynamic Display Check
+
+### 安全构建流程 (Secure Build)
+- **密钥管理**:
+  - 真实 Keystore 与密码存储于 `secure_env/` (被 gitignore)。
+  - `secure_env/secure.properties` 存储敏感凭证。
+- **构建命令**:
+  - **禁止**直接运行 `gradlew assembleRelease` (会导致未签名或签名失败)。
+  - **必须**运行 `.\build-release.ps1`。
+  - 该脚本会自动注入凭证 -> 编译 -> 清理现场。
