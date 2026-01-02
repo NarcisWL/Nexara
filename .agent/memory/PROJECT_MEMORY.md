@@ -176,6 +176,124 @@ onPress={() => {
 
 ---
 
+### 2026-01-02: RAG 系统审计与协议扩展性设计
+
+**审计背景**: 对 RAG 系统进行全面审计，发现 4 个关键缺陷和 3 个架构改进点。
+
+**关键发现**:
+
+1. **Google Embedding 缺失** (P0):
+   - 现象: `embedding.ts` 中 Google 方法抛出异常，阻断 Gemini 用户使用向量化功能。
+   - 根因: Google/Gemini API 协议与 OpenAI 完全不同（端点格式、认证方式、请求/响应结构）。
+   - 影响: 功能阻断，Vendor Lock-in 风险。
+
+2. **Token 计费泄漏** (P0):
+   - 现象: RAG 检索成本（Query Rewrite + Embedding）未计入会话 Token 统计。
+   - 根因: `chat-store.ts` 的 `generateMessage` 函数捕获了 `billingUsage` 但未累加到最终 Token 更新中。
+   - 影响: 用户看到的成本低于实际消耗，财务不透明。
+
+3. **硬编码 Provider 逻辑** (P1):
+   - 现象: `vectorization-queue.ts` 和 `memory-manager.ts` 硬编码 OpenAI 优先级，忽略用户的 `defaultEmbeddingModel` 配置。
+   - 影响: 用户无法选择 Embedding 模型，违背统一配置原则。
+
+4. **协议扩展性缺失**:
+   - 现状: 每新增一种 Embedding 协议需修改核心逻辑，维护成本高。
+   - 市场现状: 除 OpenAI 兼容和 Google 外，还有 Cohere、Voyage AI、Hugging Face 等变体。
+
+**架构决策**:
+
+采用 **策略模式 (Strategy Pattern)** 重构 Embedding 协议层：
+
+```
+抽象基类 (EmbeddingProtocol)
+├─ 定义 5 个钩子方法:
+│  ├─ buildEndpoint()
+│  ├─ buildHeaders()
+│  ├─ buildRequest()
+│  ├─ parseResponse()
+│  └─ getBatchSize()
+│
+具体实现
+├─ OpenAIProtocol (覆盖 SiliconFlow, DeepSeek, Moonshot, 智谱)
+├─ GoogleProtocol (覆盖 Gemini, Google)
+└─ [未来] CohereProtocol, VoyageAIProtocol...
+```
+
+**优势**:
+- ✅ **开闭原则**: 新增协议仅需新增文件 + 修改路由表一行代码。
+- ✅ **单一职责**: 每个协议独立文件，职责清晰。
+- ✅ **易测试**: 可单独测试每个协议实现。
+- ✅ **未来可配置化**: 预留接口，后续可改为 JSON 配置驱动（用户自定义协议）。
+
+**实施路线** (见 `implementation_plan.md` v2):
+- **Phase 1 (P0)**: 实现 Google Embedding + 修复 Token 泄漏 + 连接配置与业务逻辑 (2-3h)
+- **Phase 2 (P1)**: UI 暴露 Embedding 模型选择器 + 增强错误提示 (2-3h)
+- **Phase 3 (P2)**: 实现 Trigram 分词器（中文友好） (2-3h)
+
+**参考文档**:
+- `brain/5ab78dbb-2fd4-43b5-8d3e-1c6ee0d9bfde/RAG_SYSTEM_AUDIT.md` - 完整审计报告
+- `brain/5ab78dbb-2fd4-43b5-8d3e-1c6ee0d9bfde/implementation_plan.md` - 修复方案（v2 修订版）
+- `brain/5ab78dbb-2fd4-43b5-8d3e-1c6ee0d9bfde/PROTOCOL_EXTENSIBILITY_DESIGN.md` - 协议扩展性设计（含配置化方案）
+
+---
+
+## 工程准则更新记录 (Engineering Principles Updates)
+
+### Rule 9: Embedding 协议扩展性准则 (2026-01-02)
+
+**背景**: 市场上存在多种 Embedding API 协议变体，硬编码会导致维护噩梦。
+
+**准则**:
+1. **抽象优先**: 所有 Embedding 协议必须继承 `EmbeddingProtocol` 基类。
+2. **协议隔离**: 每个协议实现独立文件（`src/lib/rag/protocols/{provider}.ts`）。
+3. **路由表集中**: 协议选择逻辑集中在 `EmbeddingClient.selectProtocol()`，新增协议仅修改此处。
+4. **统一批量策略**: 核心逻辑 (`embedBatch`, `embedLoop`, `embedChunked`) 不关心具体协议细节。
+
+**禁止**:
+- ❌ 在 `embedding.ts` 核心类中硬编码具体协议请求/响应逻辑。
+- ❌ 在多处 switch-case 中重复协议判断。
+
+**未来演进方向**:
+- 🔮 配置化协议：用户通过 JSON 定义端点、认证、请求/响应映射，无需写代码。
+- 🔮 协议市场：社区分享协议配置文件。
+
+---
+
+## 经验教训 (Lessons Learned)
+
+### 2026-01-02: "为什么要单独实现 Google Embedding？"
+
+**用户质疑**: Google 的 API 协议与其他服务商有何不同？为何不能统一？
+
+**答案**: Google/Gemini 的 API 协议与 OpenAI **完全不同**：
+
+| 差异维度 | OpenAI/兼容者 | Google/Gemini |
+|:---|:---|:---|
+| 端点格式 | `/v1/embeddings` | `/v1beta/models/{model}:embedContent` |
+| 认证方式 | `Authorization: Bearer {key}` | Query Param `?key={apiKey}` |
+| 请求体结构 | `{ model, input: [...] }` | `{ content: { parts: [{ text }] } }` |
+| 响应结构 | `{ data: [{ embedding }] }` | `{ embedding: { values: [...] } }` |
+| 批量支持 | ✅ 最多 2048 条 | ❌ 必须逐条调用 |
+
+**深层启示**:
+- 即使是同一功能（Embedding），不同厂商的 API 设计哲学可能完全不同。
+- "统一抽象层" 的价值在于**隐藏差异**，而非**消除差异**。
+- 策略模式是应对"行为多样但目标统一"场景的有效模式。
+
+**引申问题**: 用户进一步提出——"如果未来出现第三种协议怎么办？"  
+**架构应对**: 引入策略模式后，新增协议成本从 **修改 N 处** 降至 **新增 1 个文件 + 修改 1 行路由**。
+
+---
+
+## 项目里程碑 (Milestones)
+
+### 2026-01-02: RAG 系统架构优化启动
+- ✅ 完成 RAG 系统全面审计
+- ✅ 制定可扩展协议架构方案
+- 🚧 Phase 1 实施中（预计 3 小时）
+
+---
+
 ## 重大经验记录 (Experiences & Constraints)
 
 ### Windows 编译环境 (2025-12-26)
