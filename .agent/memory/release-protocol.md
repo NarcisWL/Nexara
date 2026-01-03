@@ -31,6 +31,10 @@ Nexara-v{VersionName}-{Type}{Signed}-{Date}.apk
 ## 3. Signing Configuration
 Signing keys are managed securely and injected via Gradle properties.
 
+**Location**: `g:\Nx\secure_env` (gitignored)
+-   `secure.properties`: Contains credentials (KEYSTORE_PASSWORD, etc.)
+-   `promenar.keystore`: The binary keystore file.
+
 **Env Vars (in `gradle.properties` or System Env):**
 -   `NEXARA_UPLOAD_STORE_FILE`: Path to keystore (e.g., `../promenar.keystore`)
 -   `NEXARA_UPLOAD_STORE_PASSWORD`: Keystore password
