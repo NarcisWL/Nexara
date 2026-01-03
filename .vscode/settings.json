@@ -1,4 +1,10 @@
 {
+    "files.exclude": {
+        "**/node_modules/**/android": true,
+        "**/node_modules/**/ios": true,
+        "**/android/app/build": true,
+        "**/android/.gradle": true
+    },
     "search.exclude": {
         "**/node_modules": true,
         "**/android/app/build": true,
