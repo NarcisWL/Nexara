@@ -12,12 +12,15 @@ g:\Nx\
 │   ├── (tabs)/           # 一级 Tab 页面 (Chat, RAG, Settings)
 │   ├── chat/             # 聊天详情与 Agent 配置页
 │   ├── settings/         # 二级设置页
-│   └── rag/              # 知识库详情页
+│   ├── rag/              # 知识库详情页
+│   └── knowledge-graph.tsx # 知识图谱全屏页
+├── scripts/              # 构建与维护脚本 (Build, Versioning)
 ├── src/
 │   ├── components/       # UI 与业务组件库
 │   │   ├── ui/           # 基础原子组件
 │   │   ├── chat/         # 聊天业务组件
-│   │   └── rag/          # RAG 业务组件
+│   │   ├── rag/          # RAG 业务组件
+│   │   └── settings/     # 设置页组件
 │   ├── features/         # 业务逻辑封装 (Settings, Rag, Chat)
 │   ├── lib/              # 核心逻辑库 (LLM, DB, RAG Engine)
 │   ├── store/            # Zustand 全局状态管理
@@ -49,7 +52,7 @@ g:\Nx\
 | `ChatInput` | 输入框 (支持多行、语音输入) |
 | `AgentAvatar` | 智能体头像 (支持自动回退首字母) |
 | `AgentCard` | 智能体展示卡片 |
-| `SuperAssistantFAB` | 超级助手悬浮入口 |
+| `SuperAssistantFAB` | 超级助手悬浮入口 (支持动画引擎) |
 | `SwipeableAgentItem` | 列表项 (支持左滑置顶/右滑删除) |
 
 ### 2.3 知识库模块 (`src/components/rag`)
@@ -59,11 +62,18 @@ g:\Nx\
 | `RagDocItem` | 文档列表项 |
 | `DocumentPickerModal` | RAG 关联选择器 |
 | `RagSettingsPanel` | 知识库参数配置 |
+| `KnowledgeGraphView` | **知识图谱可视化** (WebView + vis.js) |
+| `RagStatusIndicator` | RAG 状态指示器 (队列监控) |
+
+### 2.4 设置模块 (`src/components/settings`)
+| 组件名 | 用途 |
+| :--- | :--- |
+| `TokenUsagePanel` | Token 消耗统计与可视化 |
 
 ## 3. 核心逻辑架构 (Core Logic)
 
 ### 3.1 LLM 引擎 (`src/lib/llm`)
-- **`providers/`**: 适配 OpenAI, Gemini, VertexAI 协议。
+- **`providers/`**: 适配 OpenAI, Gemini (通过策略模式扩展), VertexAI 协议。
 - **`factory.ts`**: 统一模型实例化工厂。
 - **`model-specs.ts`**: 定义上下文窗口、费率等元数据。
 
@@ -72,14 +82,17 @@ g:\Nx\
 - **`embedding.ts`**: 向量生成 (Local / API)。
 - **`reranker.ts`**: 结果重排序优化。
 - **`memory-manager.ts`**: 长期记忆管理。
+- **`graph-extractor.ts`**: 知识图谱实体抽取 (LLM)。
+- **`graph-store.ts`**: 图谱节点与关系存储。
 
 ### 3.3 状态管理 (`src/store`)
 - `chat-store`: 会话、消息流、UI 状态 (Persist)。
 - `agent-store`: 智能体定义与配置 (Persist)。
-- `rag-store`: 文档索引与状态 (Persist)。
+- `rag-store`: 文档索引、向量化队列、图谱状态 (Persist)。
 - `settings-store`: 应用级偏好 (语言、主题、触感)。
 - `api-store`: API Key 与 Provider 配置 (Persist + Secure)。
-- `token-stats-store`: Token 消耗统计。
+- `token-stats-store`: Token 消耗统计 (Persist).
+- `spa-store`: 超级助手偏好 (FAB 动画, 统计).
 
 ## 4. 已废弃/移除 (Deprecated)
 - ❌ `src/components/ui/Header.tsx` (已移除，统一使用 `GlassHeader` 或 `LargeTitleHeader`)
