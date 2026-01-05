@@ -29,6 +29,7 @@
 2. [docs/native-bridge-defensive-guide.md](./docs/native-bridge-defensive-guide.md) - 关键防御准则
 
 ### 📚 深入了解
+- [docs/release-protocol.md](./docs/release-protocol.md) - 发布流程与版本策略
 - [memory/PROJECT_MEMORY.md](./memory/PROJECT_MEMORY.md) - 项目演进历史和重大决策
 
 ### ✅ 实用工具
