@@ -265,6 +265,14 @@ onPress={() => {
 - `brain/5ab78dbb-2fd4-43b5-8d3e-1c6ee0d9bfde/implementation_plan.md` - 修复方案（v2 修订版）
 - `brain/5ab78dbb-2fd4-43b5-8d3e-1c6ee0d9bfde/PROTOCOL_EXTENSIBILITY_DESIGN.md` - 协议扩展性设计（含配置化方案）
 
+### Chat UI & Logic Refinements (2026-01-06)
+- **ContextMenu Refactor**: Switched message context menu to `ui/ContextMenu` with touch-event positioning. Added manual KG extraction, vectorization, and summarization triggers.
+- **Typography Optimization**: Reduced AI message font size to 15px and line height to 26px for higher information density. Tightened indices for markdown elements.
+- **Auto-Scroll Intelligence**: Implemented stricter "user-away" detection and manual resume threshold (20px).
+- **Search Audit & Fixes**: Verified Google Search integration. Implemented client-side search fallback for non-native providers. Fixed citation visibility bug during streaming.
+- **Regenerate Logic**: Distinct "Regenerate" (AI in-place) vs "Resend" (User clone).
+- **KG Indicator**: Refined UI with breathing glow animation and compact text size.
+
 ---
 
 ## 工程准则更新记录 (Engineering Principles Updates)
