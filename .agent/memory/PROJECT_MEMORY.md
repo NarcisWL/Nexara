@@ -102,6 +102,26 @@
 
 ---
 
+
+### v3.9 - Knowledge Graph 2.0 & Release Fixes (2026-01-05)
+**核心功能 (Knowledge Graph 2.0)**:
+- **三维图谱视图**: 实现了全局 (Global) 和会话级 (Session) 的知识图谱可视化。
+- **文件夹图谱**: 新增递归解析逻辑，支持查看文件夹及其子目录的聚合图谱。
+- **交互增强**: 
+  - 节点/边点击支持。
+  - 自动后台提取实体。
+  - 设置面板开关控制。
+
+**Release 构建闭环**:
+- **构建自动化**: 修复了版本号自动叠加 (Bump) 失效的问题。
+- **签名注入**: 实现了 `secure_env` 自动注入 keystore 和 `gradle.properties` 的流程。
+- **Crash 修复**: 
+  - 修复 `KnowledgeGraphView` Android WebView 闪退 (Hook 顺序 + 资源清理)。
+  - 修复 Release 包 R8 混淆导致的闪退 (`minifyEnabled false`)。
+  - 清理 Native Module 链接错误 (Prebuild --clean)。
+
+---
+
 ## 技术债务 / 待改进项 (Technical Debt)
 
 ### 2026-01-01: 视觉一致性残留
