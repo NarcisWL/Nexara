@@ -120,6 +120,14 @@
   - 修复 Release 包 R8 混淆导致的闪退 (`minifyEnabled false`)。
   - 清理 Native Module 链接错误 (Prebuild --clean)。
 
+### v3.9.1 - Stability & UX Refinements (2026-01-07)
+**修复与优化**:
+- **App 交互**: 修复了消息发送后瞬间显示绿勾的问题（逻辑竞态），并解决了转圈动画卡死（`React.memo` 比较失效）。
+- **Graphing 鲁棒性**: 增强 `GraphExtractor` JSON 解析能力，防止非 JSON 输出导致红屏崩溃。
+- **Crash 修复**: 补全 `MemoryManager.upsertMemory` 方法，解决手动向量化崩溃。
+- **WebUI 同步**: 修复了 WebUI 模型列表、搜索开关状态同步及 WebSocket 断连问题。
+- **视觉微调**: 统一了 Graphing 指示器与 Token/Model 指示器的尺寸与风格。
+
 ---
 
 ## 技术债务 / 待改进项 (Technical Debt)
@@ -320,6 +328,26 @@ onPress={() => {
 
 **引申问题**: 用户进一步提出——"如果未来出现第三种协议怎么办？"  
 **架构应对**: 引入策略模式后，新增协议成本从 **修改 N 处** 降至 **新增 1 个文件 + 修改 1 行路由**。
+
+### 2026-01-07: React.memo 与 Zustand/Immer 的陷阱
+**问题**: 消息状态 (`vectorizationStatus`) 更新了，但 UI (`ChatBubble`) 没刷新，导致 Loading 转圈卡死。  
+**根因**: 
+- `ChatBubble` 使用了 `React.memo` 进行性能优化，且自定义了 `arePropsEqual` 函数。
+- 状态更新通过 Zustand + Immer 修改了深层属性 (`message.vectorizationStatus`)，产生了新的 Message 对象引用。
+- 但 `arePropsEqual` 显式列出了比较字段，**漏掉了** `vectorizationStatus`。导致即使 Message 对象变了，比较结果仍为 `true` (不重新渲染)。
+
+**教训**: 
+- 在使用自定义 `React.memo` 比较函数时，必须维护一份完整的"敏感属性清单"。
+- 每当数据模型 (`Message`) 新增状态字段时，必须同步检查相关的 `React.memo` 逻辑。
+
+### 2026-01-07: LLM 输出的不可预测性与 JSON 解析
+**背景**: 本地 Graph Extraction 功能调用 LLM 提取 JSON。
+**问题**: LLM 有时会"自作聪明"地返回 Markdown 说明 ("以下是 JSON...") 而非纯 JSON，导致 `JSON.parse` 抛出异常。在 Expo 开发模式下，未捕获的 Error 会导致**红屏 (RedBox)**，严重打断体验。
+
+**解决方案**:
+1. **正则外科手术**: 使用 `/```json([\s\S]*?)```/` 优先提取代码块，而非简单的 `startsWith` 检测。
+2. **容错解析**: 正则失败时尝试寻找首尾 `{` `}`。
+3. **降级日志**: 将 `console.error` 降级为 `console.warn`。在非关键业务路径（如后台提取）上，宁可静默失败，不可崩溃应用。
 
 ---
 
