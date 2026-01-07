@@ -128,6 +128,23 @@
 - **WebUI 同步**: 修复了 WebUI 模型列表、搜索开关状态同步及 WebSocket 断连问题。
 - **视觉微调**: 统一了 Graphing 指示器与 Token/Model 指示器的尺寸与风格。
 
+### v3.9.5 - Mobile Workbench & HDR Visuals (2026-01-08)
+**核心功能**:
+- **Mobile Workbench 2.0**:
+  - **自动登录**: Web 端输入 6 位 PIN 码后自动连接，移除手动按钮。
+  - **连接保活**: 引入双向心跳 (Heartbeat) 机制，解决僵尸连接数问题。
+  - **后台运行**: 集成 `expo-keep-awake`，确保由 App 充当服务端时屏幕常亮。
+  - **多语言**: 补全设置面板翻译。
+
+**视觉突破 (HDR/EDR)**:
+- **OLED 激发**: 成功在 Android 上启用 `wideColorGamut` 原生模式。
+- **Skia 引擎升级**: 强制开启 `Float16` (Half-Float) 缓冲区与 `Display P3` 色域。
+- **亮度暴力输出**: Super Assistant FAB 粒子特效应用 RGB x 3.0 Shader，实现物理级自发光感。
+
+**发布基建**:
+- **Version Sync**: 修复了 `app.json` 与 `build.gradle` 的版本分裂，统一为 `1.1.19`。
+- **Signed Build**: 验证并执行了基于 `secure_env` 的正式版 APK 签名构建流程。
+
 ---
 
 ## 技术债务 / 待改进项 (Technical Debt)
