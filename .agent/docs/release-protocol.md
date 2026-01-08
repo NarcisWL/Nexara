@@ -45,12 +45,14 @@ Signing keys are managed securely and injected via Gradle properties.
 ```groovy
 signingConfigs {
     release {
-        if (project.hasProperty('NEXARA_UPLOAD_STORE_FILE')) {
-            storeFile file(NEXARA_UPLOAD_STORE_FILE)
-            // ...
-        }
+        // 直接读取 secure_env 路径，确保签名唯一性
+        storeFile file('D:/NF/secure_env/promenar.keystore')
+        storePassword 'narcis04300211'
+        keyAlias 'promenar'
+        keyPassword 'narcis04300211'
     }
 }
+// 注意：必须确保 buildTypes.release 中去除了任何对 signingConfigs.debug 的隐式或显式覆盖。
 ```
 
 ## 4. Release Workflow

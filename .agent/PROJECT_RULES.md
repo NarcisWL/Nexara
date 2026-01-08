@@ -192,14 +192,30 @@ NeuralFlow/
 由于项目在多台设备间同步开发，各设备的构建缓存与原生依赖状态可能不一致。
 
 ### 9.2 核心准则
-**拉取即清理 (Clean on Pull)**：
-- **触发条件**：在执行 `git pull`、`git fetch` 或 `git reset`（任何可能改变源码状态的操作）之后的**第一次**构建。
-- **强制操作**：必须先执行 `./gradlew clean` 确保环境干净。
-- **构建命令**：推荐合成指令 `cd android; ./gradlew clean assembleRelease`。
+**拉取即物理清理 (Physical Deep Clean on Pull)**：
+- **触发条件**：在执行 `git pull`、`git fetch` 或 `git reset` 之后的第一次构建。
+- **强制操作**：必须先执行物理层面的全量清理，严禁仅依赖 `gradlew clean`。
+- **清理命令**：`Remove-Item -Recurse -Force android/.cxx, android/.gradle, android/build, android/app/build`。
+- **构建序列**：物理清理 -> `cd android` -> `./gradlew assembleRelease`。
 
-### 9.3 场景化策略
-- ✅ **全量构建**：拉取远程代码后的首次编译。
-- ✅ **增量构建**：仅在本地进行代码修改且期间未进行远程同步时使用（如连续的本地调试）。
+---
+
+## 10. Android 透明开发规范 (Android Visibility & Git Hygiene)
+
+### 10.1 特权访问 (Privileged Access)
+- **开关依赖**：确保在 Antigravity 设置中开启 `Agent Gitignore Access`。
+- **透明编辑**：即便 `.gitignore` 中存在 `android/` 记录，Agent 必须利用特权直接操作原生文件，严禁使用非直观的正则脚本。
+
+### 10.2 零操作隔离 (Zero-Op Isolation)
+- **常驻忽略**：`/android` 目录应永久保留在 `.gitignore` 中，确保原生构建产物不污染远程仓库。
+- **简化操作**：基于特权访问，无需在推送前动态修改 `.gitignore`。
+
+---
+
+## 11. 语言与沟通规范 (Communication)
+
+- **零容忍语言漂移 (Zero English Drift)**：所有解释、规划、说明及任务描述必须使用**简体中文**。
+- **技术转译**：分析英文日志或文档时，核心矛盾与结论必须翻译为中文呈现，禁止直接搬运长段英文。
 
 ---
 
@@ -216,5 +232,5 @@ NeuralFlow/
 ---
 
 **文档版本**: 1.0  
-**最后更新**: 2025-12-26  
+**最后更新**: 2026-01-08  
 **维护者**: AI Assistant + Project Team

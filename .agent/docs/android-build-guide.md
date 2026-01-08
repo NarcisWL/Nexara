@@ -78,10 +78,9 @@ cd android
 # 清理 Metro 缓存
 rm -r .metro
 
-# 清理 Gradle 缓存
-cd android
-.\gradlew.bat clean
-rm -r .gradle
+# 清理 Gradle 缓存 (物理全量清理)
+Remove-Item -Recurse -Force android/.cxx, android/.gradle, android/build, android/app/build
+# 严禁仅依赖 gradlew clean
 
 # 清理 node_modules（彻底方案）
 rm -r node_modules
