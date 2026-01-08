@@ -146,7 +146,9 @@
   - 目录侧：使用单字母 `R` 目录，为 Ninja 编译器争取 ~30 字符深度。
   - Git 侧：配置 `core.longpaths true`。
 - **成果**: 成功在隔离环境下由于重叠路径压缩，顺利完成 `react-native-keyboard-controller` 等深层 NDK 模块的编译，产出 `v1.1.22` 精品 APK。
+- **架构存档**: 确定了 `D:\NF\R` 为官方外部发行生产线路径，用于隔离发行版签名与规避路径限制。
 
+---
 ### v3.9.5 - Mobile Workbench & HDR Visuals (2026-01-08)
 **核心功能**:
 - **Mobile Workbench 2.0**:
