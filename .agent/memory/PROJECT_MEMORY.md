@@ -128,6 +128,18 @@
 - **WebUI 同步**: 修复了 WebUI 模型列表、搜索开关状态同步及 WebSocket 断连问题。
 - **视觉微调**: 统一了 Graphing 指示器与 Token/Model 指示器的尺寸与风格。
 
+### v3.9.6 - Git Worktree & 路径限界突破 (2026-01-08)
+**目标**: 解决 Windows 路径过长 (MAX_PATH) 导致的编译中断，并隔离开发与发行环境。
+**核心架构 (Dual Pipeline)**:
+- **隔离方案**: 建立极简路径 Worktree `D:\NF\R`。
+  - **Dev 主环境 (`D:\NF`)**: 还原为干净的 `debug.keystore`，无打包密码，极速启动。
+  - **Release 工厂 (`D:\NF\R`)**: 硬编码正式版签名，物理隔离构建缓存。
+- **路径极限压缩**:
+  - 系统侧：开启 Windows 11 `LongPathsEnabled` 注册表与组策略。
+  - 目录侧：使用单字母 `R` 目录，为 Ninja 编译器争取 ~30 字符深度。
+  - Git 侧：配置 `core.longpaths true`。
+- **成果**: 成功在隔离环境下由于重叠路径压缩，顺利完成 `react-native-keyboard-controller` 等深层 NDK 模块的编译，产出 `v1.1.22` 精品 APK。
+
 ### v3.9.5 - Mobile Workbench & HDR Visuals (2026-01-08)
 **核心功能**:
 - **Mobile Workbench 2.0**:
