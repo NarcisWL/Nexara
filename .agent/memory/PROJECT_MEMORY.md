@@ -128,6 +128,13 @@
 - **WebUI 同步**: 修复了 WebUI 模型列表、搜索开关状态同步及 WebSocket 断连问题。
 - **视觉微调**: 统一了 Graphing 指示器与 Token/Model 指示器的尺寸与风格。
 
+### v3.9.7 - Library UI 抛光与交互闭环 (2026-01-08)
+**目标**: 修复文库界面布局高度偏差，并优化 ContextMenu 响应逻辑。
+**修复与优化**:
+- **ContextMenu 升级**: 新增 `triggerOnPress` 属性，实现点击“三点”图标立即弹出菜单（摒弃长按带来的操作负担）。
+- **布局矫正**: 重构 `FolderItem` 和 `CompactDocItem` 容器，解决了在某些设备上出现的垂直高度拉伸 Bug。
+- **发布版本 v1.1.23**: 正式启用“双环境”持久化签名流程。
+
 ### v3.9.6 - Git Worktree & 路径限界突破 (2026-01-08)
 **目标**: 解决 Windows 路径过长 (MAX_PATH) 导致的编译中断，并隔离开发与发行环境。
 **核心架构 (Dual Pipeline)**:
