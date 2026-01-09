@@ -222,15 +222,26 @@ NeuralFlow/
 ## 12. 双流水线架构协议 (Dual Pipeline Protocol)
 
 ### 12.1 环境隔离
-- **Dev 主环境 (`D:\NF`)**：仅用于日常开发与 Debug 编译。使用本地 `debug.keystore`，严禁注入发行版密码（SSOT/PoLP）。
-- **Release 工厂 (`D:\NF\R`)**：通过 `git worktree` 建立的独立发行环境。
-    - **极简路径**：必须建立在极短路径（如 `/R`）下，以规避 Windows MAX_PATH (260字符) 编译限制。
+- **Dev 主环境 (`/home/lengz/Nexara`)**：仅用于日常开发与 Debug 编译。使用本地 `debug.keystore`，严禁注入发行版密码（SSOT/PoLP）。
+- **Release 工厂 (`worktrees/release`)**：通过 `git worktree` 建立的独立发行环境。
+    - **路径规范**：在 Linux/WSL 环境下建议使用 `worktrees/release`；在 Windows 原生环境下由于 MAX_PATH 限制建议使用极短路径（如 `/R`）。
     - **永久签名**：该环境允许硬编码正式版签名信息（`signingConfigs.release`），仅存在于本地。
 
 ### 12.2 维护与同步
-- **单向逻辑流**：业务逻辑在 `main` 提交 -> 在 `R` 环境 `git pull` 同步 -> 执行打包。
-- **配置防漂移**：`R` 环境的 `android/app/build.gradle` 允许与 `main` 存在差异（硬编码签名），禁止将此差异推送到远程。
+- **单向逻辑流**：业务逻辑在 `main` 提交 -> 在 `worktrees/release` 环境 `git pull` 同步 -> 执行打包。
+- **配置防漂移**：发行环境的 `android/app/build.gradle` 允许与 `main` 存在差异（硬编码签名），禁止将此差异推送到远程。
 - **清理习惯**：每次重大版本更新前，`R` 环境必须执行物理深度清理（见规则 9）。
+
+---
+
+## 13. 开发工具自动化 (DevTools Automation)
+
+### 13.1 WSL2 ADB 桥接
+- **自动化脚本**：项目根目录下 `scripts/start-adb-bridge.ps1` 包含动态查找物理设备逻辑。
+- **运行规范**：
+    - 在 Windows 宿主机执行该脚本（需管理员权限）。
+    - 脚本使用 `--auto-attach` 模式，确保物理拔插后链路能自动恢复。
+    - 若 WSL 出现 `Permission Denied`，确保执行了：`sudo service udev restart`。
 
 ---
 

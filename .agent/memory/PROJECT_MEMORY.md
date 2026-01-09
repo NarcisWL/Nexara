@@ -149,6 +149,27 @@
 - **架构存档**: 确定了 `D:\NF\R` 为官方外部发行生产线路径，用于隔离发行版签名与规避路径限制。
 
 ---
+
+### v3.9.8 - WSL 环境迁移与开发链路闭环 (2026-01-09)
+**目标**: 实现从 Windows 原生环境向 WSL2 (Ubuntu) 的环境迁移，并打通移动端硬件调试全链路。
+
+**核心进展**:
+- **环境底座重建**:
+    - **Node.js & JDK**: 通过 NVM 安装 Linux 原生 Node v20 和 OpenJDK 17，彻底解决了 Windows 进程驱动 WSL 路径时的 UNC/权限冲突。
+    - **SDK 桥接**: 成功挂载宿主机 Android SDK (P0)，避免了重复下载。
+- **构建工作流优化**:
+    - **路径解锁**: 废弃了超短路径 `R/`，切换为更具描述性的 `worktrees/release`（受益于 Linux 极高的路径深度上限）。
+    - **签名持久化**: 针对新 Linux 路径重新注入了 `secure_env` 签名补丁。
+- **网络稳定性 (Permanent Proxy)**:
+    - 实现了系统级（Bash）、包管理器（APT）和开发工具（NPM/Git）的永久代理配置，解决了国内环境下的依赖下载阻塞。
+- **硬件桥接自动化**:
+    - **adb 穿透**: 利用 `usbipd-win` 实现物理手机穿透至 WSL2。
+    - **一键脚本**: 编写了 `start-adb-bridge.ps1`，实现了基于硬件 ID 的动态设备发现与自动重连。
+- **IDE 性能调优**:
+    - 在 `.vscode/settings.json` 中注入固定 Linux JDK 路径，稳定了 Gradle Language Server，消除了长期进度的 UI 延迟。
+
+---
+
 ### v3.9.5 - Mobile Workbench & HDR Visuals (2026-01-08)
 **核心功能**:
 - **Mobile Workbench 2.0**:
