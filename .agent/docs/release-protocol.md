@@ -7,9 +7,10 @@
 *   **发行工作区 (Worktree - `release-production`)**: 专用发行环境。位于 `worktrees/release`。所有的正式发布包 (`Signed-Release`) 必须在此目录下编译。**注意：此分支仅作为本地编译工厂，严禁推送到远程仓库。**
 
 ## 2. 签名与 Git 策略
-*   **Root**: `android/app/build.gradle` 中的 `signingConfigs.release` 已移除或禁用。
-*   **Worktree**: `android/app/build.gradle` 包含完整的 `signingConfigs.release` 逻辑。
-*   **禁止推送**: `release-production` 分支仅存在于本地机器，用于固化环境参数（如 Proxy、SDK 路径、签名引用）。如果需要共享给其他开发机器，应手动同步 `.properties` 文件而非通过 Git 托管。
+*   **自动化签名 (Persistent Config Plugin)**: 通过 `plugins/withAndroidSigning.js` 实现。在 `npx expo prebuild` 时自动注入 `secure_env` 路径下的 `promenar.keystore` 签名逻辑，无需手动编辑 `build.gradle`。
+*   **Root (main)**: 包含所有功能代码及 Config Plugins。
+*   **Worktree (release-production)**: 本地专用的编译工厂，严禁推送到远程仓库（GitHub 仅保留 `main` 分支作为唯一事实源）。
+*   **环境隔离**: 签名信息受 `secure_env/secure.properties` 保护，Git 已忽略。
 
 ## 3. 操作指令 (Standard Operating Procedures)
 
@@ -19,11 +20,13 @@
 ./gradlew assembleDebug
 ```
 
-### 编译发行包 (Release Build)
+### 编译发行包 (Release Build - Standard SOP)
 在 **Worktree** 目录执行：
-```bash
-cd worktrees/release/android && ./gradlew assembleRelease
-```
+1. `git merge main` (确保同步最新代码)
+2. `rm -rf android/.cxx android/.gradle android/build android/app/build` (物理清理防止符号冲突)
+3. `npm install`
+4. `npx expo prebuild --platform android --clean`
+5. `cd android && ./gradlew assembleRelease`
 
 ## 4. 依赖管理
 *   ** gradle.properties**: 两边独立维护代理及编译参数。
