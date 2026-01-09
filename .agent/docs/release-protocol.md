@@ -1,63 +1,29 @@
-# Release Protocol & Versioning Strategy
+# Android Release Build Protocol (NeuralFlow)
 
-## 1. Versioning Strategy
-Automated versioning is strictly enforced for consistency between `package.json`, `app.json`, and Android build artifacts.
+为了确保开发环境与发行环境的物理隔离，并保护签名密钥安全，特制定以下协议：
 
-### Version Numbering (Semantic Versioning)
--   **Patch (x.y.Z)**: Bug fixes, small UI tweaks, minor features.
-    -   Command: `npm run bump:patch`
-    -   Increment: `0.0.1` -> `0.0.2`
--   **Minor (x.Y.z)**: Large refactors, significant feature sets, logic overhauls.
-    -   Command: `npm run bump:minor`
-    -   Increment: `0.1.0` -> `0.2.0` (Resets Patch to 0)
--   **Major (X.y.z)**: Breaking changes, complete redesigns.
-    -   **Manual Update Required** in `app.json` and `package.json`.
+## 1. 物理隔离 (Physical Isolation)
+*   **主工作区 (Root - `main`)**: 仅用于开发和测试包编译。严禁在此包含正式签名配置。
+*   **发行工作区 (Worktree - `release-production`)**: 专用发行环境。位于 `worktrees/release`。所有的正式发布包 (`Signed-Release`) 必须在此目录下编译。
 
-### Build Versioning (Version Code)
--   **Source**: `app.json` (`expo.android.versionCode`)
--   **Strategy**: Auto-increment integer (+1) on EVERY `bump` command.
--   **Rule**: Never decrease or reset.
+## 2. 签名策略
+*   **Root**: `android/app/build.gradle` 中的 `signingConfigs.release` 已移除或禁用。
+*   **Worktree**: `android/app/build.gradle` 包含完整的 `signingConfigs.release` 逻辑，并指向 `../../secure_env/`。
 
-## 2. Naming Convention
-Release APKs are automatically named by `android/app/build.gradle` logic:
+## 3. 操作指令 (Standard Operating Procedures)
 
-```
-Nexara-v{VersionName}-{Type}{Signed}-{Date}.apk
-```
--   **Example**: `Nexara-v1.1.2-Release-Signed-20260103.apk`
--   **Type**: `Release` or `Debug`
--   **Signed**: Separated by Release config presence.
-
-## 3. Signing Configuration
-Signing keys are managed securely and injected via Gradle properties.
-
-**Location**: `g:\Nx\secure_env` (gitignored)
--   `secure.properties`: Contains credentials (KEYSTORE_PASSWORD, etc.)
--   `promenar.keystore`: The binary keystore file.
-
-**Env Vars (in `gradle.properties` or System Env):**
--   `NEXARA_UPLOAD_STORE_FILE`: Path to keystore (e.g., `../promenar.keystore`)
--   `NEXARA_UPLOAD_STORE_PASSWORD`: Keystore password
--   `NEXARA_UPLOAD_KEY_ALIAS`: Key alias
--   `NEXARA_UPLOAD_KEY_PASSWORD`: Key password
-
-**Gradle Logic (`android/app/build.gradle`):**
-```groovy
-signingConfigs {
-    release {
-        // 直接读取 secure_env 路径，确保签名唯一性
-        storeFile file('D:/NF/secure_env/promenar.keystore')
-        storePassword 'narcis04300211'
-        keyAlias 'promenar'
-        keyPassword 'narcis04300211'
-    }
-}
-// 注意：必须确保 buildTypes.release 中去除了任何对 signingConfigs.debug 的隐式或显式覆盖。
+### 编译开发包 (Dev Build)
+在 **Root** 目录执行：
+```bash
+./gradlew assembleDebug
 ```
 
-## 4. Release Workflow
-1.  **Commit Changes**: Ensure git status is clean.
-2.  **Bump Version**: Run `npm run bump:patch` (or minor).
-3.  **Build**:
-    -   Run: `cd android && ./gradlew assembleRelease`
-    -   Artifact: `android/app/build/outputs/apk/release/*.apk`
+### 编译发行包 (Release Build)
+在 **Worktree** 目录执行：
+```bash
+cd worktrees/release/android && ./gradlew assembleRelease
+```
+
+## 4. 依赖管理
+*   ** gradle.properties**: 两边独立维护代理及编译参数。
+*   ** 权限恢复**: 每次清理 node_modules 后，需确保 `linux64-bin/hermesc` 具备执行权限 (`chmod +x`)。
