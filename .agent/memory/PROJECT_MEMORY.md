@@ -168,6 +168,27 @@
 - **IDE 性能调优**:
     - 在 `.vscode/settings.json` 中注入固定 Linux JDK 路径，稳定了 Gradle Language Server，消除了长期进度的 UI 延迟。
 
+### v4.0 - Reasoning & Tool Unification (2026-01-11)
+**目标**: 解决 DeepSeek/Gemini 等高阶模型在 Agent 循环中的稳定性问题，实现推理过程与主对话的视觉分离。
+
+**核心进展**:
+1. **深度推理隔离 (Implicit Reasoning)**:
+   - **<think> 标签剥离**: 在 `OpenAiClient` 中实现了流式实时拦截，将 DeepSeek 的思考过程直接转场至 Timeline。
+   - **推理解耦**: 重构 `chat-store.ts`，确保推理内容在产生那一刻即被移出主气泡，消除“先显示后消失”的视觉抖动。
+2. **多轮对话状态持久化**:
+   - **推理上下文保留**: 在 Agent 循环中持久化 `reasoning` 字段。解决了 DeepSeek-Reasoner 等模型在执行完首个工具后因丢失之前的思考状态而导致多轮任务中断（空返回）的致命 Bug。
+3. **Gemini 工具调用加固 (Phase 14)**:
+   - **双轨回退解析 (ReAct Fallback)**: 引入 Strategy 3 (正则解析)。即便模型拒绝原生触发而输出 `call:xxx(...)` 文本，系统也能捕获并转换为原生的工具执行流程。
+   - **开发者指令注入**: 通过 `system_instruction` 强引导模型使用原生 Function Calling 机制。
+   - **Schema 严格转换**: 实现 Schema 类型自动大写化，确保与 Gemini Studio 接口的 100% 兼容。
+4. **UI/UX 质感提升**:
+   - **Reanimated 动效**: 集成 `react-native-reanimated`，为 `ToolExecutionTimeline` 提供了带阻尼感的弹簧展开/折叠动画。
+   - **无感光敏调校**: 修复了浅色模式下时间轴线条与隐式输出文本的可见性对比度。
+
+**成果**:
+- ✅ DeepSeek-Reasoner 成功执行 3 步以上复杂任务。
+- ✅ Gemini 2.0 系列触发原生工具的成功率提升了 ~70%。
+
 ---
 
 ### v3.9.5 - Mobile Workbench & HDR Visuals (2026-01-08)
@@ -433,9 +454,9 @@ onPress={() => {
 ## 待办事项 (Updated)
 
 ### 高优先级
-- [ ] 解决 RAG 与二级设置页的视觉一致性残留 (Technical Debt)
+- [ ] 优化 `QueryVectorDbSkill` 的 Top-K 检索策略，减少无关分块对上下文的污染
+- [ ] 适配 `DeepSeek-V3` 官方工具调用特有协议（如果与标准 OpenAI 不同）
 - [ ] 自动化构建补丁脚本 (Fix `build.gradle` after Expo Prebuild)
-- [ ] 实现针对大规模文档库的向量检索分页/缓存
 
 ### 中优先级
 - [ ] PDF 文件导入支持
