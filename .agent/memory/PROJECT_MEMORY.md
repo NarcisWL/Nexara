@@ -518,3 +518,23 @@ onPress={() => {
   - **禁止**直接运行 `gradlew assembleRelease` (会导致未签名或签名失败)。
   - **必须**运行 `.\build-release.ps1`。
   - 该脚本会自动注入凭证 -> 编译 -> 清理现场。
+
+### v4.2 - Global Crystal UI Overhaul (2026-01-13)
+**目标**: 彻底移除"死灰"色调，建立统一的"Midnight Indigo"水晶态视觉体系。
+
+**视觉规范 (Design System Update)**:
+- **背景 (Backgrounds)**:
+    - **半透明卡片**: `bg-white/80 dark:bg-zinc-900/60` (或 `bg-gray-50/80` 用于深层嵌套)。
+    - **玻璃材质**: 集成原生 `BlurView` (dark: intensity 30, light: intensity 60)。
+    - **中性设置面板**: 通用设置面板采用中性灰 `rgba(24, 24, 27, 0.8)` 以避免过度蓝调。
+- **边框与微光 (Borders & Glow)**:
+    - **通用边框**: `border-indigo-50 dark:border-indigo-500/10`。
+    - **微光效果**: 引入 `SilkyGlow` 组件增强深度感。
+- **动效 (Motion)**:
+    - **标签切换**: 强制使用 `FadeIn` (300ms) 避免跳变。
+    - **组件复用**: 在条件渲染中必须添加唯一 `key` 以强制触发 Reanimated 动画。
+
+**工程改进**:
+- **批量重构**: 使用 `sed` 脚本批量升级了 50+ 个组件文件，显著提升了重构效率。
+- **IDE 修复**: 修复了 JSX 属性中未闭合的引号导致的 Babel 解析错误。
+- **React 动效原理**: 再次确认了 React Diff 机制对动画的影响，通过 `key` 强制重挂载解决了动画失效问题。
