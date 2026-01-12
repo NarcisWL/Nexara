@@ -189,6 +189,24 @@
 - ✅ DeepSeek-Reasoner 成功执行 3 步以上复杂任务。
 - ✅ Gemini 2.0 系列触发原生工具的成功率提升了 ~70%。
 
+### v4.1 - Cross-Model Tooling & API Robustness (2026-01-12)
+**目标**: 彻底解决 DeepSeek, Kimi 和 Gemini 2.0 在复杂多轮工具调用中的协议冲突与 400 报错。
+
+**核心进展**:
+1. **OpenAI 兼容性深度对齐 (DeepSeek/Kimi Focus)**:
+    - **消息序列审计**: 在 `chat-store.ts` 中实现了“上下文完整性审计器”，自动剔除历史上因截断导致的挂起工具请求（Missing tool message 修复）。
+    - **角色字段强隔离**: 解决了 `assistant` 和 `tool` 角色在 `tool_calls`/`tool_call_id` 上的双重格式化错位问题。
+    - **Schema 鲁棒性**: 强制 Zod 转换为 `openApi3` 格式并清理递归 `definitions`，确保国产 API 校验必需的 `properties` 字段始终存在。
+2. **Vertex AI (Gemini 2.0) 指标对齐**:
+    - **思维签名 (thought_signature) 闭环**: 实现了签名的全链路捕捉、持久化与回显，解决了多轮调用报 `signature missing` 的致命故障。
+    - **角色格式化规范化**: 实现了 `normalizedTurns` 逻辑，确保发送给 Google 的消息序列严格符合 `user -> model` 交替协议。
+3. **可观测性增强**:
+    - **API Logger**: 引入 `src/lib/llm/api-logger.ts`，支持在终端实时输出 `[API_DEBUG]` 日志，大幅提升了协议错位的调试效率。
+
+**成果**:
+- ✅ DeepSeek/Kimi 生图、知识库查询全链路跑通，不再报 400 错误。
+- ✅ 实现了跨厂商、跨协议的工具调用高度抽象，`AgentLoop` 进入稳定态。
+
 ---
 
 ### v3.9.5 - Mobile Workbench & HDR Visuals (2026-01-08)
