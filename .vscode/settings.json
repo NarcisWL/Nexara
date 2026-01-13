@@ -30,5 +30,6 @@
             "path": "/usr/lib/jvm/java-17-openjdk-amd64",
             "default": true
         }
-    ]
+    ],
+    "css.lint.unknownAtRules": "ignore"
 }
