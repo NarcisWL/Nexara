@@ -255,8 +255,86 @@ NeuralFlow/
 - **修复**: 移除嵌套 + 延迟原生桥接
 - **教训**: 用户触觉异常反馈是性能问题的重要信号
 
+
 ---
 
-**文档版本**: 1.0  
-**最后更新**: 2026-01-08  
+## 14. LLM抽象层架构规范 🔥
+
+> **版本**: v1.0 (2026-01-14)  
+> **强制性**：⭐⭐⭐⭐⭐ 核心架构准则  
+> **详细文档**: `.agent/docs/llm-abstraction-layer-guide.md`
+
+### 14.1 三层架构强制分离
+
+```
+业务层 (chat-store.ts)      ← 纯业务逻辑，无Provider判断
+   ↓
+抽象层 (Response/Stream/Formatter) ← 所有Provider差异在此
+   ↓
+网络层 (openai/gemini/vertexai)   ← 纯HTTP通信
+```
+
+### 14.2 强制规范 (Mandatory Rules)
+
+#### ❌ 严禁在业务层（chat-store.ts）出现
+
+```typescript
+// 禁止示例
+if (provider === 'deepseek') { ... }
+if (provider === 'zhipu') { ... }
+content = content.replace(/<tool_call>.../, ''); // 直接清理XML
+```
+
+#### ✅ 必须在抽象层处理
+
+- **格式转换** → `ResponseNormalizer.normalize[Provider]()`
+- **内容清理** → `StreamParser.getCleanContent()`
+- **历史构建** → `[Provider]Formatter.formatHistory()`
+
+### 14.3 Provider颗粒度要求
+
+**不允许**：粗粒度划分（"OpenAI兼容"）  
+**必须**：细粒度划分（DeepSeek / GLM / KIMI 各自独立）
+
+**支持的Provider**：
+- OpenAI / SiliconFlow / GitHub (标准OpenAI)
+- DeepSeek (支持reasoning)
+- GLM / zhipu (XML工具调用)
+- KIMI / moonshot (基本兼容)
+- Gemini / Vertex (Google系)
+
+### 14.4 扩展新Provider流程
+
+**必须按序完成**：
+1. `response-normalizer.ts` → 添加 `normalize[Provider]()`
+2. `formatters/provider-formatters.ts` → 创建 `[Provider]Formatter`
+3. `formatter-factory.ts` → 注册路由
+4. `stream-parser.ts` → （可选）添加清理逻辑
+
+### 14.5 调试定位规则
+
+| 问题症状 | 诊断位置 | 操作方法 |
+|---------|---------|---------|
+| 输出包含XML/标签 | StreamParser | 修改`getCleanContent()` |
+| reasoning显示错误 | ResponseNormalizer | 修改`normalize[Provider]()` |
+| 历史记录API错误 | MessageFormatter | 修改`formatHistory()` |
+| 循环终止异常 | chat-store通用逻辑 | 修改terminate conditions |
+
+### 14.6 审查清单
+
+添加/修改LLM功能时，必须问：
+- [ ] 这是Provider特定的吗？ → 应在**抽象层**
+- [ ] 这影响所有Provider吗？ → 应在**业务层**
+- [ ] 这只是HTTP细节吗？ → 应在**网络层**
+
+### 14.7 参考文档
+
+- **完整指南**: `.agent/docs/llm-abstraction-layer-guide.md`
+- **快速参考**: `.agent/memory/CODE_STRUCTURE.md` 第4章
+- **最佳实践**: 指南第四章
+
+---
+
+**文档版本**: 1.1  
+**最后更新**: 2026-01-14  
 **维护者**: AI Assistant + Project Team

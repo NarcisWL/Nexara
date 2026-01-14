@@ -1,8 +1,9 @@
 # 项目结构与组件架构 (Project Structure & Component Architecture)
 
-> **上次更新**: 2026-01-10
-> **版本**: v4.0
-> **用途**: 供 AI 快速索引项目结构、核心组件与业务逻辑分布。
+> **上次更新**: 2026-01-14  
+> **版本**: v5.0  
+> **用途**: 供 AI 快速索引项目结构、核心组件与业务逻辑分布。  
+> **重要变更**: 新增 LLM 抽象层完整架构（v1.0）
 
 ## 1. 核心目录全景 (Directory Overview)
 
@@ -25,10 +26,40 @@
 │   ├── features/         # 复杂业务逻辑与专属面板
 │   │   ├── chat/         # 消息气泡、Token 统计、推理面板
 │   │   └── settings/     # 备份恢复、多供应商管理、RAG 设置面板
-│   ├── lib/              # 核心基础设施 (LLM, RAG Engine, I18n)
+│   ├── lib/              # 核心基础设施 🔥
+│   │   ├── llm/          # LLM 抽象层架构 (v1.0)
+│   │   │   ├── providers/          # 网络层 HTTP Clients
+│   │   │   │   ├── openai.ts       # OpenAI 兼容协议
+│   │   │   │   ├── gemini.ts       # Gemini API
+│   │   │   │   └── vertexai.ts     # Vertex AI
+│   │   │   ├── formatters/         # Provider专属Formatters
+│   │   │   │   └── provider-formatters.ts  # 5个Formatter实现
+│   │   │   ├── response-normalizer.ts   # 响应标准化器
+│   │   │   ├── stream-parser.ts         # 流式解析器 + 内容清理
+│   │   │   ├── message-formatter.ts     # 格式化器接口
+│   │   │   ├── formatter-factory.ts     # Provider路由工厂
+│   │   │   ├── factory.ts               # Client创建工厂
+│   │   │   ├── types.ts                 # 类型定义
+│   │   │   ├── error-normalizer.ts      # 错误标准化
+│   │   │   └── api-logger.ts            # API日志
+│   │   ├── rag/          # RAG 引擎 (向量化、知识图谱)
+│   │   ├── db/           # SQLite 数据库
+│   │   ├── i18n/         # 国际化
+│   │   └── skills/       # 工具/技能系统
 │   ├── store/            # Zustand 状态管理 (Persist & Secure)
 │   └── theme/            # 动态主题系统 (ThemeProvider)
-└── .agent/               # 项目记忆、工作流与架构指南
+└── .agent/               # 项目记忆、工作流与架构指南 🔥
+    ├── docs/             # 详细架构文档
+    │   ├── llm-abstraction-layer-guide.md      # LLM架构完整指引
+    │   ├── android-build-guide.md              # Android构建指南
+    │   ├── native-bridge-defensive-guide.md    # 原生桥接防御
+    │   ├── release-protocol.md                 # 发布流程
+    │   ├── settings-panels-reference.md        # 设置面板参考
+    │   └── steerable-agent-loop-design.md      # 可控代理循环
+    ├── memory/           # 项目记忆
+    │   └── CODE_STRUCTURE.md   # 本文档
+    ├── workflows/        # 工作流定义
+    └── PROJECT_RULES.md  # 项目规则
 ```
 
 ## 2. 组件库清单 (Component Inventory)
@@ -84,6 +115,66 @@
 | **`ModelPicker`** | 智能模型选择器，支持能力图标 (Reasoning, Vision) |
 | **`BackupSettings`** | 数据库/配置的导出与本地文件恢复 |
 
+### 2.5 核心基础设施 (`src/lib`)\n*LLM引擎、RAG系统、技能管理与数据库*
+
+#### 2.5.1 LLM抽象层 (`lib/llm`) 🔥
+
+> **版本**: v1.0 (2026-01-14)  
+> **详细文档**: `.agent/docs/llm-abstraction-layer-guide.md`
+
+**三层架构**：
+
+| 层级 | 组件 | 文件 | 职责 |
+|------|------|------|------|
+| **抽象层** | ResponseNormalizer | `response-normalizer.ts` | 统一各Provider响应格式 |
+| | StreamParser | `stream-parser.ts` | 解析工具调用 + Provider特定清理 |
+| | MessageFormatter | `message-formatter.ts` | 接口定义 |
+| | Provider Formatters | `formatters/provider-formatters.ts` | 5个专属实现 |
+| | FormatterFactory | `formatter-factory.ts` | Provider路由 |
+| **网络层** | OpenAI Client | `providers/openai.ts` | OpenAI兼容协议 |
+| | Gemini Client | `providers/gemini.ts` | Gemini API |
+| | Vertex Client | `providers/vertexai.ts` | Vertex AI |
+| **工具层** | Factory | `factory.ts` | 创建LLM Client |
+| | Types | `types.ts` | 类型定义 |
+| | Error Normalizer | `error-normalizer.ts` | 错误标准化 |
+| | API Logger | `api-logger.ts` | API调用日志 |
+
+**支持的Provider**（按服务商细分）：
+- OpenAI / SiliconFlow / GitHub
+- DeepSeek（支持reasoning）
+- GLM / zhipu（XML工具调用）
+- KIMI / moonshot（基本兼容）
+- Gemini / Vertex AI
+
+#### 2.5.2 RAG引擎 (`lib/rag`)
+
+| 组件 | 用途 |
+|------|------|
+| **`rag-manager.ts`** | 向量化检索核心管理器 |
+| **`memory-manager.ts`** | 记忆归档与上下文管理 |
+| **`graph-extractor.ts`** | 知识图谱提取器 |
+| **`text-splitter.ts`** | 文档分片策略 |
+
+#### 2.5.3 技能系统 (`lib/skills`)
+
+| 组件 | 用途 |
+|------|------|
+| **`skill-manager.ts`** | 工具/技能注册与执行 |
+| **`registry.ts`** | 内置技能库 |
+
+#### 2.5.4 数据库 (`lib/db`)
+
+| 组件 | 用途 |
+|------|------|
+| **`db.ts`** | SQLite 数据库初始化与模式 |
+
+#### 2.5.5 国际化 (`lib/i18n`)
+
+| 组件 | 用途 |
+|------|------|
+| **`useI18n.ts`** | 国际化Hook（中文/英文） |
+| **`translations/`** | 翻译资源文件 |
+
 ## 3. 架构准则与废弃说明
 
 ### 3.1 核心准则
@@ -103,3 +194,94 @@
 
 ---
 **维护准则**: 新增组件或重构核心逻辑后，请同步更新此文档。
+
+## 4. LLM抽象层架构 🔥
+
+> **版本**: v1.0 (2026-01-14)  
+> **重要性**: ⭐⭐⭐⭐⭐ 核心架构  
+> **完整文档**: `.agent/docs/llm-abstraction-layer-guide.md`
+
+### 4.1 架构概览
+
+**三层分离原则**：业务层 → 抽象层 → 网络层
+
+```
+chat-store.ts (业务层)
+  ↓ 调用抽象层API
+【抽象层】← 所有Provider差异隔离在此
+  ├─ ResponseNormalizer    统一响应格式
+  ├─ StreamParser          解析+清理Internal content
+  ├─ MessageFormatter      构建历史记录
+  └─ FormatterFactory      Provider路由
+  ↓ 调用HTTP Client
+openai.ts / gemini.ts / vertexai.ts (网络层)
+```
+
+### 4.2 组件清单与职责
+
+| 组件 | 文件位置 | Provider颗粒度 | 职责 |
+|------|---------|---------------|------|
+| **ResponseNormalizer** | `lib/llm/response-normalizer.ts` | ✅ 已细分 | 统一各Provider响应为`NormalizedChunk` |
+| **StreamParser** | `lib/llm/stream-parser.ts` | ✅ 已细分 | 增量解析工具调用+Provider特定清理 |
+| **MessageFormatter** | `lib/llm/message-formatter.ts`<br>`formatters/provider-formatters.ts` | ✅ 已细分 | 处理历史记录构建差异 |
+| **FormatterFactory** | `lib/llm/formatter-factory.ts` | - | 根据provider类型返回Formatter |
+
+**支持的Provider**（按服务商划分）：
+- OpenAI / SiliconFlow / GitHub
+- DeepSeek
+- GLM (智谱AI)
+- KIMI (月之暗面)
+- Gemini / Vertex AI
+
+### 4.3 核心设计原则
+
+1. **职责隔离** ✅
+   - ❌ 业务层**禁止**包含 `if (provider === 'xxx')` 判断
+   - ✅ 所有Provider差异**必须**在抽象层处理
+
+2. **Provider颗粒度** ✅
+   - 不是粗粒度的"OpenAI vs Gemini"
+   - 而是细粒度的"DeepSeek / GLM / KIMI"
+
+3. **独立扩展** ✅
+   - 新增Provider不影响现有逻辑
+   - 调试某个Provider不会"修A坏B"
+
+### 4.4 关键使用场景
+
+**场景1：修复GLM输出XML问题**
+```typescript
+// ✅ 正确位置：StreamParser.getCleanContent()
+case 'zhipu':
+  cleaned = cleaned.replace(/<tool_call>[\s\S]*?<\/tool_call>/gi, '');
+```
+
+**场景2：DeepSeek支持reasoning回传**
+```typescript
+// ✅ 正确位置：DeepSeekFormatter.formatHistory()
+// 保留reasoning字段，不像OpenAI那样删除
+```
+
+**场景3：添加新Provider（Anthropic）**
+1. `response-normalizer.ts` - 添加`normalizeAnthropic()`
+2. `provider-formatters.ts` - 创建`AnthropicFormatter`
+3. `formatter-factory.ts` - 注册路由
+4. `stream-parser.ts` - （可选）添加清理逻辑
+
+### 4.5 ⚠️ 常见错误
+
+| ❌ 错误做法 | ✅ 正确做法 |
+|-----------|-----------|
+| 在chat-store中写正则清理XML | 在StreamParser.getCleanContent() |
+| 在业务层判断reasoning支持 | 在MessageFormatter中处理 |
+| 修改网络层做格式转换 | 在ResponseNormalizer中处理 |
+
+### 4.6 快速参考
+
+- **添加新Provider** → 参考 `llm-abstraction-layer-guide.md` 第三章
+- **调试现有Provider** → 参考 `llm-abstraction-layer-guide.md` 第四章
+- **架构原则** → 参考 `llm-abstraction-layer-guide.md` 第二章
+
+---
+**最后更新**：2026-01-14  
+**维护者**：Agent + Architecture Team

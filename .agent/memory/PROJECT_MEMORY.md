@@ -232,7 +232,7 @@
 ### 2026-01-01: 视觉一致性残留
 虽然核心路径已完成重构，但仍有以下区域存在硬编码颜色或设计限制，**暂缓处理，留待后续迭代**：
 
-1.  **RAG 模块 (`app/rag`, `src/components/rag`)**: 文档管理界面仍含有大量硬编码颜色 (Tailwind Indigo 类名)，需后续排期统一。
+1.  **RAG 模块 (`app/rag`, `src/components/rag`)**: 文档管理界面已完成核心视觉升级（水晶态），但在某些深层组件中仍残留少量硬编码颜色。
 2.  **二级设置页**: Proivder 设置弹窗、Agent 详情设置页 (`app/chat/[id]/settings.tsx`) 尚未重构。
 3.  **Chat 界面颜色绑定**:
     *   **现象**: `app/chat/[id].tsx` 和 `ChatInput.tsx` 中，关键交互元素（发送按钮、新会话按钮、Input 模型图标、Markdown 边框）均绑定了 `agent.color` (Agent 预设颜色)。
@@ -538,3 +538,60 @@ onPress={() => {
 - **批量重构**: 使用 `sed` 脚本批量升级了 50+ 个组件文件，显著提升了重构效率。
 - **IDE 修复**: 修复了 JSX 属性中未闭合的引号导致的 Babel 解析错误。
 - **React 动效原理**: 再次确认了 React Diff 机制对动画的影响，通过 `key` 强制重挂载解决了动画失效问题。
+
+### v4.2.1 - SVG Interaction & Visualization (2026-01-07)
+**目标**: 解决聊天中复杂 SVG 图表无法完全显示、无法缩放的问题。
+- **全屏交互**: 实现了 SVG 全屏预览模式，支持双指缩放和拖拽移动（Panning & Pinch Zoom）。
+- **滚动容器**: 为长图/大图自动包裹滚动容器，防止超出气泡范围被截断。
+- **渲染加速**: 优化了 `react-native-svg` 的渲染层级，解决大图展示时的 UI 掉帧问题。
+
+### v4.3 - Intelligent Execution Modes (2026-01-14)
+**目标**: 实现 Agent 处理流程的可控性与安全性平衡。
+- **三档模式**:
+    - **Full Auto**: 极速自动化执行（不中断）。
+    - **Semi-Auto**: 智能审批模式。 Agent 自主判断敏感操作（如删除文件、修改核心配置）并主动请求用户审批。
+    - **Manual**: 纯步进模式，每一步工具执行均需用户确认。
+- **UI 集成**: 顶部 TabBar 实时切换模式，支持对单次请求进行动态干预。
+
+### v4.4 - Universal Tool Parsing & Robustness (2026-01-14)
+**目标**: 兼容国产大模型（GLM, DeepSeek, Kimi）多样化的工具调用输出格式。
+- **正则/XML 复合解析**: 针对模型由于“幻觉”或不规范输出导致的 JSON 嵌套、XML 包裹工具调用（如 `<tool_call>...</tool_call>`）实现了鲁棒的正则表达式解析引擎。
+- **Plan 块隔离**: 自动提取并隔离模型输出中的 `<plan>` 逻辑块，防止非对话内容污染主气泡。
+- **参数清理**: 自动处理 GLM 等模型可能错误封装的参数结构。
+
+### v4.5 - RAG FS & Performance Stabilization (2026-01-14)
+**目标**: 解决 RAG 系统的物理一致性问题，并应对数据爆炸带来的极端性能挑战。
+- **物理同步与沙箱 (P0)**:
+    - 实现了 RAG 文库与 `agent_sandbox/workspace/` 的物理双向同步。
+    - 确立了 Agent 权限限界，将其文件操作严格限制在 workspace 目录下。
+- **重大故障修复 (Hotfix)**:
+    - **数据去重**: 修复了初始化递归 Bug 导致的 `folders` 表数据爆炸（42 万条冗余记录）。
+    - **性能加固**: 实现了非递归工作区检查、并发锁机制，并添加了 Max Depth 保护。
+- **渲染效率优化**:
+    - **选择器隔离**: 优化 Zustand 选择器，使向量化进度更新不再干扰文档列表渲染。
+    - **全链路渲染缓存**: 对列表项实施 `React.memo`，并对主列表组件进行 `useMemo` 数据锁定，解决了大列表滚动卡顿问题。
+
+---
+
+## 经验教训 (Lessons Learned)
+
+### 2026-01-14: 递归初始化与数据库爆炸
+- **背景**: 在 RAG 路径同步逻辑中，`_ensureWorkspace` 误触发了 `loadFolders`，而在 `loadFolders` 内部又调用了 `_ensureWorkspace`，形成隐蔽的递归环。
+- **症状**: APP 启动白屏，数据库文件夹记录在短时间内飙升至 40 万+。
+- **教训**: 
+    - 任何涉及“全量刷新”的操作均不得在“初始化检查”路径中同步触发。
+    - 数据表的物理记录数应有“熔断”机制。
+    - 复杂的树形结构加载必须强制设置 `maxDepth` 硬上限（推荐 20 层）。
+
+### v4.6 - Steerable Loop UI & Task Scoping (2026-01-14)
+**目标**: 完成可控 Agent 的 UI 落地，并修复任务状态的生命周期管理。
+
+**UI 落地 (Steerable Loop UI)**:
+- **组件实现**: 完成了 `ExecutionModeSelector` (GlassHeader 集成) 和 `ApprovalCard` (消息气泡集成)。
+- **交互闭环**: 实现了从 "暂停等待" -> "用户干预/审批" -> "Resume 携带反馈" 的完整闭环。
+- **Bug 修复**: 修正了 `useChat` 中 `resumeGeneration` 参数传递丢失导致干预指令被忽略的问题。
+
+**架构重构 (Task Monitor 2.0)**:
+- **生命周期修正**: 将 `activeTask` 从 Session 全局下沉至 `Message.planningTask`。
+- **解决痛点**: 彻底解决了 "Regenerate 时任务状态不重置" 和 "历史消息任务状态被污染" 的问题。
+- **状态隔离**: 确保了多轮对话中，每一轮的思考/规划状态互不干扰。
