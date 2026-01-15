@@ -71,21 +71,30 @@
 
 ---
 
-### 3. chat-store解耦重构 🔥🏗️
+### 3. chat-store解耦重构 🔥🏗️ (Phase 1 完成 ✅)
 
 **背景**:
 - `chat-store.ts`已超过3100行，维护困难
 - 包含多个职责：消息管理、AgentLoop、RAG、工具执行、状态管理
 - 单一文件过大影响开发体验和性能
 
-**目标**:
-- **拆分为模块化架构**：
-  - `chat-store.ts` - 核心状态和基础操作
-  - `agent-loop.ts` - AgentLoop逻辑
-  - `tool-execution.ts` - 工具执行引擎
-  - `message-manager.ts` - 消息CRUD操作
-  - `approval-manager.ts` - 审批流程管理
-  - `session-manager.ts` - 会话管理
+**Phase 1 已完成** (2026-01-15):
+- ✅ 创建模块化架构
+- ✅ 定义所有模块接口（types.ts）
+- ✅ 实现MessageManager（完整）
+- ✅ 实现SessionManager（完整）
+- ✅ 实现ApprovalManager（完整）
+- ✅ 创建ToolExecutor包装器
+- ✅ 创建AgentLoopManager包装器
+
+**Phase 2 待完成**:
+- [ ] 在chat-store中集成MessageManager
+- [ ] 在chat-store中集成SessionManager
+- [ ] 在chat-store中集成ApprovalManager
+- [ ] 提取executeTools核心逻辑到tool-execution.ts
+- [ ] 提取generateMessage核心逻辑到agent-loop.ts
+- [ ] 删除chat-store中的冗余代码
+- [ ] 完整端到端测试
 
 **影响**:
 - 代码可维护性提升
@@ -93,22 +102,13 @@
 - 减少合并冲突
 - 提升IDE性能
 
-**预计时间**: 4-6小时
+**参考文档**:
+- `.agent/docs/chat-store-refactor-phase2.md` - **Phase 2实施指南** ⭐
+- `brain/.../chat_store_refactor_plan.md` - 原始重构计划
+- `brain/.../walkthrough.md` - Phase 1完成报告
+- `src/store/chat/` - 已创建的模块代码
 
-**关键原则**:
-- 保持向后兼容
-- 逐步迁移，确保功能正常
-- 增加类型安全性
-- 添加完整的JSDoc注释
-
-**完成标准**:
-- [ ] 设计模块拆分方案
-- [ ] 创建新模块文件
-- [ ] 迁移AgentLoop逻辑
-- [ ] 迁移工具执行逻辑
-- [ ] 更新所有导入引用
-- [ ] 验证所有功能正常
-- [ ] 删除冗余代码
+**预计时间**: Phase 2 需要 2-3小时
 
 ---
 
@@ -425,6 +425,15 @@
 ---
 
 ## 📝 CHANGELOG
+
+### 2026-01-15 (晚间 - chat-store模块化 Phase 1)
+- ✅ 创建chat-store模块化架构
+- ✅ 实现6个模块：types, message, session, approval, tool, agent-loop
+- ✅ MessageManager完整实现（消息CRUD）
+- ✅ SessionManager完整实现（会话管理）
+- ✅ ApprovalManager完整实现（审批流程）
+- ✅ ToolExecutor和AgentLoopManager包装器
+- ➕ 待Phase 2：集成到chat-store并提取核心逻辑
 
 ### 2026-01-15 (下午 - 虚拟拆分完整修复)
 - ✅ 完成虚拟拆分架构3处关键修复（P0级）
