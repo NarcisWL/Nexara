@@ -335,6 +335,162 @@ content = content.replace(/<tool_call>.../, ''); // 直接清理XML
 
 ---
 
+## 15. 虚拟拆分架构规范 (Virtual Split Architecture) 🔥
+
+> **版本**: v1.0 (2026-01-15)  
+> **强制性**：⭐⭐⭐⭐⭐ 核心协议兼容准则  
+> **相关文件**: `chat-store.ts:virtualSplitAssistantToolPairs`
+
+### 15.1 背景与目标
+
+**问题**: 不同LLM供应商对多工具调用的协议要求不一致：
+- **DeepSeek Reasoner**: 要求所有`assistant`消息必须包含`reasoning_content`字段（即使为空）
+- **VertexAI Gemini**: 要求多轮工具调用时继承`thought_signature`
+- **OpenAI协议**: 允许单个`assistant`包含多个`tool_calls`，但部分模型执行时会丢失中间状态
+
+**解决方案**: 在Agent Loop内部实施"虚拟拆分"——将单个multi-tool的`assistant`拆分为多个single-tool的`assistant+tool`对。
+
+### 15.2 核心架构
+
+```
+原始格式 (Multi-Tool):
+user -> assistant(tool_calls: [A, B]) -> tool(A) -> tool(B)
+
+虚拟拆分后 (Single-Tool Pairs):
+user -> assistant(tool_calls: [A]) -> tool(A) 
+     -> assistant(tool_calls: [B]) -> tool(B)
+```
+
+### 15.3 字段继承规则 (Field Inheritance)
+
+**强制要求**: `virtualSplitAssistantToolPairs`函数必须正确继承以下字段：
+
+1. **reasoning** (内部格式):
+   - 第一个virtual assistant: 包含完整reasoning内容
+   - 后续virtual assistants: 空字符串`''` (不是`undefined`)
+   - **关键**: DeepSeekClient会将`reasoning`转换为`reasoning_content`发送给API
+
+2. **thought_signature** (VertexAI):
+   - 所有virtual assistants必须继承原始assistant的`thought_signature`
+   - 即使assistant没有reasoning，也必须传递signature
+
+3. **tool_calls**:
+   - 每个virtual assistant只包含**一个**tool_call
+   - `tool_calls`字段仍然是数组，但长度固定为1
+
+4. **user消息**:
+   - 虚拟拆分函数必须处理`user`消息，直接传递（不拆分）
+
+### 15.4 历史累积策略 (History Accumulation)
+
+**错误方案** ❌:
+```typescript
+// 每次从session重新提取完整历史
+const rawSegment = session.messages.slice(userMsgIdx);
+currentMessages = [...baseHistory, ...virtualSplit(rawSegment)];
+```
+
+**正确方案** ✅:
+```typescript
+// 只提取当前Turn新增的assistant+tool，追加到currentMessages
+const newSegment = session.messages.slice(currentAssistantIdx);
+currentMessages = [...currentMessages, ...virtualSplit(newSegment)];
+```
+
+**理由**: Agent Loop中复用同一个`assistantMsgId`，每次Turn都在更新它。如果重新提取整个session，只会看到1个assistant + 多个tool，导致历史丢失。
+
+### 15.5 内部格式 vs API格式
+
+**严格区分**:
+- **内部格式** (Zustand存储): `message.reasoning`
+- **API格式** (发送给供应商): `msg.reasoning_content`
+
+**转换位置**: 由各Provider的Client负责（如`DeepSeekClient`）
+
+**关键检查**:
+```typescript
+// ❌ 错误 - 空字符串会被过滤
+if (m.reasoning) {
+  msg.reasoning_content = m.reasoning;
+}
+
+// ✅ 正确 - 允许空字符串
+if (m.reasoning !== undefined) {
+  msg.reasoning_content = m.reasoning;
+}
+```
+
+### 15.6 XHR连接泄漏防御
+
+**问题**: 流式API在收到`[DONE]`后，XHR可能仍处于`readyState 3`，导致并发连接累积。
+
+**修复**: 在`[DONE]`处理时显式关闭XHR
+
+```typescript
+if (data === '[DONE]') {
+  // 🔑 显式关闭XHR以防止并发连接残留
+  if (xhr.readyState !== 4) {
+    xhr.abort();
+  }
+  resolve();
+  return;
+}
+```
+
+**影响**: 解决GLM等严格并发限额（=3）供应商的400错误。
+
+### 15.7 调试检查清单
+
+虚拟拆分相关问题排查：
+
+- [ ] `[VirtualSplit]`日志显示所有virtual assistants都有`reasoning_content`？
+- [ ] `[AgentLoop]`日志显示`currentMessages`在累积（不是固定4条）？
+- [ ] API请求体（`[API_DEBUG][REQ_BODY]`）中所有assistant都有必需字段？
+- [ ] 是否有字段名不匹配（`reasoning` vs `reasoning_content`）？
+- [ ] XHR关闭逻辑是否在`[DONE]`处理中？
+
+### 15.8 扩展新Provider注意事项
+
+添加新Provider时，检查：
+
+1. **特殊字段要求**: 是否有类似`reasoning_content`/`thought_signature`的特殊字段？
+2. **字段继承**: 是否需要在`virtualSplitAssistantToolPairs`中添加继承逻辑？
+3. **格式转换**: 是否需要在Provider的Client中添加字段转换逻辑？
+4. **多tool支持**: 该Provider是否支持multi-tool，还是必须虚拟拆分？
+
+### 15.9 禁止事项 (Anti-Patterns)
+
+❌ **禁止在业务层手动拆分tool_calls**:
+```typescript
+// 不要这样做
+for (const tc of toolCalls) {
+  await executeToolIndividually(tc);
+}
+```
+
+❌ **禁止跳过虚拟拆分**:
+```typescript
+// 不要认为某个Provider"不需要"虚拟拆分
+if (provider !== 'deepseek') {
+  // 所有Provider都应该走统一的虚拟拆分逻辑
+}
+```
+
+❌ **禁止在虚拟拆分中修改原始session**:
+```typescript
+// 虚拟拆分只是生成API请求，不应该修改session.messages
+```
+
+### 15.10 参考实现
+
+- **核心函数**: `chat-store.ts:virtualSplitAssistantToolPairs` (L1270-1370)
+- **历史累积**: `chat-store.ts` isTaskCreate分支 (L1988-2028) / 正常分支 (L2125-2160)
+- **字段转换**: `deepseek.ts` (L364-370)
+- **XHR关闭**: `openai.ts` / `deepseek.ts` (L140-145)
+- **项目记忆**: `.agent/memory/PROJECT_MEMORY.md` v4.7章节
+
+---
+
 **文档版本**: 1.1  
-**最后更新**: 2026-01-14  
+**最后更新**: 2026-01-15  
 **维护者**: AI Assistant + Project Team
