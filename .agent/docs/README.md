@@ -16,6 +16,8 @@
 
 | 文档 | 用途 | 维护频率 |
 |------|------|----------|
+| **[chat-store-refactor-phase2.md](./chat-store-refactor-phase2.md)** | chat-store模块化重构Phase 2指南 ⭐ | 按需更新 |
+| **[chat-store-refactor-overview.md](./chat-store-refactor-overview.md)** | chat-store重构方案总览 | 稳定 |
 | **[native-bridge-defensive-guide.md](./native-bridge-defensive-guide.md)** | 原生桥接防御机制 | 稳定 |
 | **[steerable-agent-loop-design.md](./steerable-agent-loop-design.md)** | 可控代理循环设计 | 稳定 |
 | **[android-build-guide.md](./android-build-guide.md)** | Android构建指南 | 随构建流程变化 |
@@ -62,6 +64,14 @@
 ---
 
 ## 📊 文档维护记录
+
+### 2026-01-15
+- ✅ 品牌名统一更新（NeuralFlow → Nexara）
+- ✅ 新增 chat-store 重构文档系列
+  - `chat-store-refactor-phase2.md` (Phase 2实施指南)
+  - `chat-store-refactor-overview.md` (重构方案总览)
+  - `chat-store-refactor-phase1-report.md` (Phase 1完成报告)
+- ✅ 更新文档索引
 
 ### 2026-01-14（重大更新）
 - ✅ 新增 `llm-abstraction-layer-guide.md`（v1.0）
