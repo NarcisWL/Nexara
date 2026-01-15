@@ -595,3 +595,75 @@ onPress={() => {
 - **生命周期修正**: 将 `activeTask` 从 Session 全局下沉至 `Message.planningTask`。
 - **解决痛点**: 彻底解决了 "Regenerate 时任务状态不重置" 和 "历史消息任务状态被污染" 的问题。
 - **状态隔离**: 确保了多轮对话中，每一轮的思考/规划状态互不干扰。
+
+### v4.7 - Virtual Split Architecture (2026-01-15)
+**目标**: 解决 DeepSeek/VertexAI Gemini 等模型在多工具调用场景下的协议冲突，实现跨供应商的工具调用统一。
+
+**核心问题**:
+- **DeepSeek Reasoner**: 严格要求所有 `assistant` 消息包含 `reasoning_content` 字段（即使为空）。
+- **VertexAI Gemini**: 要求多轮工具调用时继承 `thought_signature`。
+- **OpenAI 协议**: 单个 `assistant` 可以包含多个 `tool_calls`，但部分模型执行时会丢失中间状态。
+
+**架构方案 - Virtual Split**:
+```
+原始格式 (Multi-Tool):
+user -> assistant(tool_calls: [A, B]) -> tool(A) -> tool(B)
+
+虚拟拆分后 (Single-Tool Pairs):
+user -> assistant(tool_calls: [A]) -> tool(A) 
+     -> assistant(tool_calls: [B]) -> tool(B)
+```
+
+**实现要点**:
+1. **字段继承规则** (`virtualSplitAssistantToolPairs`):
+   - `reasoning`: 内部字段，第一个 assistant 有内容，后续为空字符串（DeepSeek 要求）。
+   - `thought_signature`: 所有 assistant 必须继承（VertexAI 要求）。
+   - `tool_calls`: 每个 virtual assistant 只包含一个 tool_call。
+
+2. **历史累积策略**:
+   - **不重新提取整个 session**：避免因 Loop 复用同一 `assistantMsgId` 导致历史丢失。
+   - **追加新 segment**：每次 Turn 结束后，只提取当前 Turn 的新增 `assistant + tool`，追加到 `currentMessages`。
+   - **保留 user 消息**：虚拟拆分函数必须处理 `user` 消息，直接传递。
+
+3. **内部格式 vs API 格式**:
+   - **内部格式**: `message.reasoning`（Zustand 存储）。
+   - **API 格式**: `msg.reasoning_content`（DeepSeekClient 转换）。
+   - **关键修复**: `if (m.reasoning !== undefined)` 而非 `if (m.reasoning)`，允许空字符串通过。
+
+4. **连接泄漏防御**:
+   - **问题**: XHR 在收到 `[DONE]` 后可能仍处于 `readyState 3`，导致并发连接累积。
+   - **修复**: 显式调用 `xhr.abort()` 确保连接完全关闭。
+   - **影响**: 解决 GLM 等严格并发限额（=3）供应商的 400 错误。
+
+**关键代码位置**:
+- **虚拟拆分函数**: `chat-store.ts:virtualSplitAssistantToolPairs` (L1270-1370)
+- **历史累积逻辑**:
+  - isTaskCreate 分支: `chat-store.ts` (L1988-2028)
+  - 正常工具执行分支: `chat-store.ts` (L2125-2160)
+- **字段转换**: `deepseek.ts` (L364-370), `openai.ts` (类似)
+- **XHR 关闭**: `openai.ts` / `deepseek.ts` (L140-145)
+
+**测试覆盖**:
+- ✅ DeepSeek Chat: 完整执行多轮任务链（修复前循环创建任务）。
+- ✅ DeepSeek Reasoner: 完整执行复杂任务（修复前 400 Missing reasoning_content）。
+- ✅ VertexAI Gemini (Gemini-2.0-Flash-Exp): 多轮工具调用成功。
+- ✅ Kimi K2-Thinking: 推理模型验证通过。
+- ✅ GLM-4.5-Air: 标准模型验证通过。
+- ✅ GLM-4.6V-Flash: 严格并发限额（=3）验证通过（XHR 关闭修复）。
+
+**排障关键点**:
+1. **空字符串 falsy 陷阱**: JavaScript 中 `'' == false`，必须用 `!== undefined` 判断。
+2. **历史提取策略**: 从 session 提取 vs 累积 currentMessages，后者是正确方案。
+3. **readyState vs Promise**: Promise resolve 不等于 XHR 连接关闭。
+4. **字段名不匹配**: 内部 `reasoning` vs API `reasoning_content`，需要统一由 Client 转换。
+
+**经验教训**:
+- **协议差异无法统一**: 不同供应商的 API 要求本质上不同，需要在虚拟拆分层统一处理。
+- **调试日志价值**: 详细的 `[VirtualSplit]` 和 `[AgentLoop]` 日志极大加速了问题定位。
+- **渐进式修复**: 先修复 DeepSeek，再修复 VertexAI，最后修复历史累积，避免一次改动太多。
+- **XHR 生命周期**: 流式 API 的连接管理需要显式控制，不能依赖隐式清理。
+
+**未来扩展注意**:
+- 新增供应商时，检查是否有类似 `reasoning_content` / `thought_signature` 的特殊字段要求。
+- 虚拟拆分函数是扩展点，可以添加更多字段继承逻辑。
+- 如果某个供应商不支持虚拟拆分（强制要求多 tool_calls），需要在 Formatter 层添加特殊处理。
