@@ -1,4 +1,4 @@
-# NeuralFlow 项目记忆
+# Nexara 项目记忆
 
 > **用途**: 记录项目开发过程中的关键决策、重大事件和经验教训  
 > **更新频率**: 每次重大变更后更新
@@ -227,17 +227,31 @@
 
 ---
 
+## 工程准则 (Engineering Principles)
+
+### Rule 8: 原生桥接死锁防御 (Native Bridge Safety)
+- **准则**: 所有原生调用 (`Haptics`, `SecureStore`) 必须延迟 10ms 执行。
+- **场景**: 状态变更、路由跳转、高频交互。
+
+### Rule 8.4: 网络层防御 (MIME Hygiene)
+- **准则**: `JSON.parse` 前必须校验 `Content-Type: application/json`。
+- **目的**: 防止 502/404 HTML 报错页导致应用崩溃。
+
+### Rule 9: 协议扩展性 (Protocol Strategy)
+- **准则**: 所有多厂商策略 (Embedding, LLM) 必须使用**策略模式**。
+- **禁止**: 在核心业务逻辑中硬编码厂商判断 (`if google ...`).
+
+---
+
 ## 技术债务 / 待改进项 (Technical Debt)
 
 ### 2026-01-01: 视觉一致性残留
-虽然核心路径已完成重构，但仍有以下区域存在硬编码颜色或设计限制，**暂缓处理，留待后续迭代**：
+虽然核心路径已完成重构，但仍有以下区域存在设计限制，**暂缓处理，留待后续迭代**：
 
-1.  **RAG 模块 (`app/rag`, `src/components/rag`)**: 文档管理界面已完成核心视觉升级（水晶态），但在某些深层组件中仍残留少量硬编码颜色。
-2.  **二级设置页**: Proivder 设置弹窗、Agent 详情设置页 (`app/chat/[id]/settings.tsx`) 尚未重构。
-3.  **Chat 界面颜色绑定**:
-    *   **现象**: `app/chat/[id].tsx` 和 `ChatInput.tsx` 中，关键交互元素（发送按钮、新会话按钮、Input 模型图标、Markdown 边框）均绑定了 `agent.color` (Agent 预设颜色)。
-    *   **限制**: 目前 UI 上没有更改 Agent 预设颜色的入口，导致如果 Agent 颜色与主题不符或对比度不够，用户无法调整。且这些元素的颜色没有统一使用主题色 (`Colors.primary`)。
-    *   **建议**: 后续应提供“自定义 Agent 颜色”功能，或强制让这些交互元素回退到全局主题色。
+1.  **二级设置页**: Proivder 设置弹窗、Agent 详情设置页 (`app/chat/[id]/settings.tsx`) 尚未重构。
+2.  **Chat 界面颜色绑定**:
+    *   **现象**: `ChatInput.tsx` 中关键交互元素均绑定了 `agent.color`。
+    *   **限制**: 后续应提供“自定义 Agent 颜色”功能。
 
 ---
 
@@ -402,51 +416,7 @@ onPress={() => {
 
 ---
 
-## 经验教训 (Lessons Learned)
 
-### 2026-01-02: "为什么要单独实现 Google Embedding？"
-
-**用户质疑**: Google 的 API 协议与其他服务商有何不同？为何不能统一？
-
-**答案**: Google/Gemini 的 API 协议与 OpenAI **完全不同**：
-
-| 差异维度 | OpenAI/兼容者 | Google/Gemini |
-|:---|:---|:---|
-| 端点格式 | `/v1/embeddings` | `/v1beta/models/{model}:embedContent` |
-| 认证方式 | `Authorization: Bearer {key}` | Query Param `?key={apiKey}` |
-| 请求体结构 | `{ model, input: [...] }` | `{ content: { parts: [{ text }] } }` |
-| 响应结构 | `{ data: [{ embedding }] }` | `{ embedding: { values: [...] } }` |
-| 批量支持 | ✅ 最多 2048 条 | ❌ 必须逐条调用 |
-
-**深层启示**:
-- 即使是同一功能（Embedding），不同厂商的 API 设计哲学可能完全不同。
-- "统一抽象层" 的价值在于**隐藏差异**，而非**消除差异**。
-- 策略模式是应对"行为多样但目标统一"场景的有效模式。
-
-**引申问题**: 用户进一步提出——"如果未来出现第三种协议怎么办？"  
-**架构应对**: 引入策略模式后，新增协议成本从 **修改 N 处** 降至 **新增 1 个文件 + 修改 1 行路由**。
-
-### 2026-01-07: React.memo 与 Zustand/Immer 的陷阱
-**问题**: 消息状态 (`vectorizationStatus`) 更新了，但 UI (`ChatBubble`) 没刷新，导致 Loading 转圈卡死。  
-**根因**: 
-- `ChatBubble` 使用了 `React.memo` 进行性能优化，且自定义了 `arePropsEqual` 函数。
-- 状态更新通过 Zustand + Immer 修改了深层属性 (`message.vectorizationStatus`)，产生了新的 Message 对象引用。
-- 但 `arePropsEqual` 显式列出了比较字段，**漏掉了** `vectorizationStatus`。导致即使 Message 对象变了，比较结果仍为 `true` (不重新渲染)。
-
-**教训**: 
-- 在使用自定义 `React.memo` 比较函数时，必须维护一份完整的"敏感属性清单"。
-- 每当数据模型 (`Message`) 新增状态字段时，必须同步检查相关的 `React.memo` 逻辑。
-
-### 2026-01-07: LLM 输出的不可预测性与 JSON 解析
-**背景**: 本地 Graph Extraction 功能调用 LLM 提取 JSON。
-**问题**: LLM 有时会"自作聪明"地返回 Markdown 说明 ("以下是 JSON...") 而非纯 JSON，导致 `JSON.parse` 抛出异常。在 Expo 开发模式下，未捕获的 Error 会导致**红屏 (RedBox)**，严重打断体验。
-
-**解决方案**:
-1. **正则外科手术**: 使用 `/```json([\s\S]*?)```/` 优先提取代码块，而非简单的 `startsWith` 检测。
-2. **容错解析**: 正则失败时尝试寻找首尾 `{` `}`。
-3. **降级日志**: 将 `console.error` 降级为 `console.warn`。在非关键业务路径（如后台提取）上，宁可静默失败，不可崩溃应用。
-
----
 
 ## 项目里程碑 (Milestones)
 
@@ -539,6 +509,29 @@ onPress={() => {
 - **IDE 修复**: 修复了 JSX 属性中未闭合的引号导致的 Babel 解析错误。
 - **React 动效原理**: 再次确认了 React Diff 机制对动画的影响，通过 `key` 强制重挂载解决了动画失效问题。
 
+### v4.3 - Crystal UI Standards (2026-01-16)
+**目标**: 建立配置页与卡片内部的严格视觉层级 (SSOT)。
+
+**核心规范**:
+1.  **一级模块标题 (Section Header)**
+    - **位置**: 卡片外部 (Top-level).
+    - **样式**: `SectionHeader` 组件。
+    - **特征**:
+        - 左侧竖条 (Pill): W:4 H:12 Radius:999 Color:Theme[500].
+        - 文字: Size:12 Weight:700 Uppercase Spacing:1.5px.
+2.  **二级模块标题 (Inner Header)**
+    - **位置**: 卡片内部 (Inside Card).
+    - **样式**: 纯文本标签，**严禁使用竖条**。
+    - **特征**: Size:xs Weight:Bold Color:Gray-500 Uppercase Spacing:Wider.
+3.  **选项按钮 (Selection/Preset)**
+    - **交互态**: 彻底摒弃静态玻璃底色。
+    - **Unselected**: `bg-transparent` (全透明), No Border, Gray Text/Icon.
+    - **Selected**: `border-theme-500` (1.5px), `bg-theme-500/10` (微光), Theme Text/Icon.
+
+**适用范围**:
+- 所有 Config Panel (Assistant, RAG, Session, System).
+- 禁止在卡片内部再次嵌套带竖条的 `SettingsSection`。
+
 ### v4.2.1 - SVG Interaction & Visualization (2026-01-07)
 **目标**: 解决聊天中复杂 SVG 图表无法完全显示、无法缩放的问题。
 - **全屏交互**: 实现了 SVG 全屏预览模式，支持双指缩放和拖拽移动（Panning & Pinch Zoom）。
@@ -575,13 +568,23 @@ onPress={() => {
 
 ## 经验教训 (Lessons Learned)
 
+### 2026-01-02: 协议差异与抽象层 (Google Embedding)
+- **启示**: 不同厂商 API 设计哲学差异巨大（Endpoins, Auth, Body）。
+- **策略**: "统一抽象层" 的价值在于隐藏差异。策略模式将新增协议成本降至 **新增 1 个文件**。
+
+### 2026-01-07: React.memo 与 Zustand/Immer 的陷阱
+- **教训**: 自定义 `arePropsEqual` 必须维护完整的"敏感属性清单"。Model 新增字段时必须同步检查 Memo 逻辑 (如 `vectorizationStatus`)。
+
+### 2026-01-07: LLM 输出防御 (JSON Parsing)
+- **教训**: 永远不要信任 LLM 输出纯 JSON。必须使用正则 `/```json([\s\S]*?)```/` 提取，并在非关键路径降级 `console.error` 为 `warn` 以防红屏。
+
 ### 2026-01-14: 递归初始化与数据库爆炸
-- **背景**: 在 RAG 路径同步逻辑中，`_ensureWorkspace` 误触发了 `loadFolders`，而在 `loadFolders` 内部又调用了 `_ensureWorkspace`，形成隐蔽的递归环。
-- **症状**: APP 启动白屏，数据库文件夹记录在短时间内飙升至 40 万+。
-- **教训**: 
-    - 任何涉及“全量刷新”的操作均不得在“初始化检查”路径中同步触发。
-    - 数据表的物理记录数应有“熔断”机制。
-    - 复杂的树形结构加载必须强制设置 `maxDepth` 硬上限（推荐 20 层）。
+- **背景**: `_ensureWorkspace` 误触发递归 `loadFolders`，导致 40w+ 冗余记录。
+- **教训**: 初始化检查路径严禁触发全量刷新；树形结构加载必须设置 `maxDepth` 熔断。
+
+---
+
+## 近期架构迭代 (Recent Updates)
 
 ### v4.6 - Steerable Loop UI & Task Scoping (2026-01-14)
 **目标**: 完成可控 Agent 的 UI 落地，并修复任务状态的生命周期管理。
@@ -709,3 +712,40 @@ user -> assistant(tool_calls: [A]) -> tool(A)
 - UI组件: `ExecutionModeSelector.tsx`, `ApprovalCard.tsx`
 
 ---
+
+### v4.9 - Execution Mode Integration & Compact UI (2026-01-16)
+**目标**: 将执行模式控制下沉至会话级别输入栏，并建立紧凑型配置面板的视觉规范。
+
+**核心功能 (Execution Mode)**:
+- **单入口控制**: 执行模式切换按钮直接集成到 `ChatInput` 右侧，与模型名称指示器对称布局。
+- **样式对齐**: 按钮采用与 `modelBar` 一致的视觉规范（圆角 12px、灰色文字、透明深色底）。
+- **冗余清理**: 移除了会话设置 (`settings.tsx`) 和全局助手设置 (`SkillsSettingsPanel.tsx`) 中的冗余配置项。
+- **默认模式切换**: 全站默认执行模式由 `auto` 更改为更稳健的 `semi`。
+
+**视觉规范 (Compact UI Standards)**:
+1. **一级模块标题 (SectionHeader)**:
+   - 竖条尺寸缩减: W:4 H:12 (从 W:6 H:16)。
+   - 文字尺寸: `text-xs` (从 `text-sm`)。
+   - 下边距减少: `mb-8` (从 `mb-16`)。
+2. **卡片内部布局**:
+   - 内边距: `p-4` (从 `p-5`/`p-6`)。
+   - 选项间距: `mb-2` (从 `mb-4`)。
+   - 描述字号: `text-[10px]` (从 `text-xs`)。
+3. **滑块层级简化**:
+   - 标题与当前值: 同行 `flex-row` 布局。
+   - 范围指示: 独立行，极小字号。
+4. **预设按钮**:
+   - 增加选中态 (`isActive`) 逻辑与彩色边框 (Cyan/Amber/Indigo)。
+   - 背景色由卡片底色继承改为条件渲染块内控制。
+5. **通用 Glass Card**:
+   - 圆角归一: 20px (Golden Standard)。
+   - 深色模式边框: `border-white/10` (提升可见度)。
+
+**Bug 修复**:
+- **RAG 状态绑定**: 修复 `AdvancedRetrievalPanel` 中文档检索数量错误绑定到 `memoryLimit` 的问题。
+
+**影响文件**:
+- `ChatInput.tsx`, `session-manager.ts`, `settings-store.ts`, `ChatController.ts`
+- `GlobalRagConfigPanel.tsx`, `AdvancedRetrievalPanel.tsx`, `SkillsSettingsPanel.tsx`
+- `Card.tsx` (通用组件)
+
