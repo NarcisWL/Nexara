@@ -633,9 +633,45 @@ setTimeout(() => {
 
 ---
 
+## 14. 2026-01-15 更新日志: chat-store模块化 Phase 1 + 文档品牌统一
+
+### 14.1 chat-store 模块化架构 (Phase 1)
+**目标**: 解决chat-store.ts过大（3171行）的维护问题，为渐进式重构打好基础。
+
+**成果**:
+- **模块架构设计**: 创建6个独立模块（types, message, session, approval, tool, agent-loop）
+- **完整实现**: MessageManager、SessionManager、ApprovalManager 完整独立实现
+- **包装器模式**: ToolExecutor和AgentLoopManager采用包装器模式，保持向后兼容
+- **类型安全**: 完整的TypeScript接口定义和ManagerContext设计
+- **渐进式路径**: 为Phase 2集成到chat-store提供清晰的实施指南
+
+**详细文档**:
+- `.agent/docs/chat-store-refactor-phase2.md` - Phase 2实施指南
+- `.agent/docs/chat-store-refactor-overview.md` - 重构方案总览
+- `.agent/docs/chat-store-refactor-phase1-report.md` - Phase 1完成报告
+
+### 14.2 文档品牌统一
+**目标**: 将所有文档中的前品牌名"NeuralFlow"统一更新为"Nexara"。
+
+**更新范围**:
+- ✅ README.md - 文档中心标题
+- ✅ release-protocol.md - 发布协议标题
+- ✅ product-requirements.md - 项目名称
+- ✅ android-build-guide.md - 路径引用（5处）
+- ✅ 文档索引更新 - 添加chat-store重构文档链接
+
+### 14.3 虚拟拆分与审批循环修复（前期工作）
+**成果**:
+- ✅ DeepSeek审批循环修复
+- ✅ thinking步骤保存到Timeline
+- ✅ 会话卡死bug修复
+- ✅ TypeScript类型修复（loopStatus添加'idle'状态）
+
+---
+
 **文档维护者**: AI Assistant  
-**最后更新**: 2025-12-29  
-**下次审查**: App Store 上架前
+**最后更新**: 2026-01-15  
+**下次审查**: chat-store Phase 2集成前
 
 ---
 
