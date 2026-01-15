@@ -22,6 +22,7 @@
 | **[steerable-agent-loop-design.md](./steerable-agent-loop-design.md)** | 可控代理循环设计 | 稳定 |
 | **[android-build-guide.md](./android-build-guide.md)** | Android构建指南 | 随构建流程变化 |
 | **[release-protocol.md](./release-protocol.md)** | 发布流程协议 | 随流程优化更新 |
+| **[document-maintenance-workflow.md](./document-maintenance-workflow.md)** | 文档维护流程规范 | 稳定 |
 | **[settings-panels-reference.md](./settings-panels-reference.md)** | 设置面板参考 | 随UI变化更新 |
 
 ---
