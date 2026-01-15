@@ -749,3 +749,20 @@ user -> assistant(tool_calls: [A]) -> tool(A)
 - `GlobalRagConfigPanel.tsx`, `AdvancedRetrievalPanel.tsx`, `SkillsSettingsPanel.tsx`
 - `Card.tsx` (通用组件)
 
+---
+
+### v4.10 - Build Configuration Stabilization (2026-01-16)
+**目标**: 解决编译设置中的版本漂移与签名逻辑缺陷，确保本地与发行环境的鲁棒性。
+
+**核心修复**:
+- **版本归一 (Single Source of Truth)**: 同步 `app.json`, `package.json` 与 `android/app/build.gradle` 的版本号至 `1.1.32` (versionCode: 32)。
+- **签名逻辑重构**: 
+    - 优先级 1: 读取 `build-release.ps1` 注入的 `gradle.properties` 变量。
+    - 优先级 2: 读取 `../../secure_env/` 下的物理文件（修正了之前的四级深度错误路径）。
+    - 优先级 3: 回退至 `debug.keystore`。
+- **工程名称规范化**: 将 `package.json` 的 `name` 字段从 `temp_init` 更新为 `nexara`。
+
+**产出**:
+- 确立了稳定的发行构建流水线，彻底解决了“发行包未签名或版本回退”的潜在风险。
+
+
