@@ -667,3 +667,45 @@ user -> assistant(tool_calls: [A]) -> tool(A)
 - 新增供应商时，检查是否有类似 `reasoning_content` / `thought_signature` 的特殊字段要求。
 - 虚拟拆分函数是扩展点，可以添加更多字段继承逻辑。
 - 如果某个供应商不支持虚拟拆分（强制要求多 tool_calls），需要在 Formatter 层添加特殊处理。
+
+### v4.8 - Steerable Agent Loop (2026-01-15)
+**目标**: 实现可控Agent执行模式，支持用户审批介入高风险操作。
+
+**核心功能**:
+- **三档执行模式**:
+  - **Auto（自动）**: 全自动执行，不中断，适合研究型任务。
+  - **Semi-Auto（半自动）**: 智能审批模式，遇到高风险操作（write_file、run_command等）自动暂停等待批准。
+  - **Manual（手动）**: 每步都需审批，完全可控。
+- **审批机制**:
+  - Loop暂停时显示`ApprovalCard`，展示待执行工具名称、参数和风险原因。
+  - 支持批准/拒绝操作，决策记录到Timeline。
+  - Timeline新增`intervention_required`和`intervention_result`步骤类型。
+
+**UI实现**:
+- **ExecutionModeSelector**: 集成到Chat页面Header右侧，Modal选择模式，配色区分（蓝/琥珀/绿）。
+- **ApprovalCard**: 嵌入AI消息气泡，琥珀色警告配色，显示工具详情和批准/拒绝按钮。
+- **触感反馈**: 批准（Medium冲击）、拒绝（Error通知）。
+
+**架构设计**:
+- **Session级状态**: `executionMode`（模式）、`loopStatus`（循环状态）、`approvalRequest`（审批请求）、`pendingIntervention`（介入指令）。
+- **无冲突集成**: 与虚拟拆分、Task Monitor 2.0完全兼容。
+- **高风险识别**: 检测`write_to_file`、`run_command`、`replace_file_content`等工具。
+
+**代码审计结果** (评分4.7/5.0):
+- ✅ 架构设计: 5/5 - 状态设计清晰，职责分离合理
+- ✅ 逻辑正确性: 5/5 - 核心逻辑无bug，边界处理完善
+- ⚠️ UI/UX: 4/5 - 视觉专业，交互流畅，**缺介入输入框**
+- ✅ 兼容性: 5/5 - 与现有架构无冲突
+
+**待办事项** (高优先级):
+1. 补充`ApprovalCard`的介入输入框（TextInput），允许用户提供自定义指令修改待执行操作
+2. 优化高风险工具识别逻辑（改为严格匹配+配置化列表）
+3. 添加使用文档到`.agent/docs/`
+
+**参考文档**:
+- 代码审计报告: `brain/d9d0d381-2af7-451e-98b4-c56ef3fe4013/steerable_agent_audit.md`
+- 补充方案: `brain/d9d0d381-2af7-451e-98b4-c56ef3fe4013/intervention_input_plan.md`
+- 核心文件: `chat-store.ts` (L646-698: resumeGeneration, L2048-2076: 审批检查)
+- UI组件: `ExecutionModeSelector.tsx`, `ApprovalCard.tsx`
+
+---
