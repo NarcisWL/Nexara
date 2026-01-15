@@ -104,8 +104,8 @@
 
 **参考文档**:
 - `.agent/docs/chat-store-refactor-phase2.md` - **Phase 2实施指南** ⭐
-- `brain/.../chat_store_refactor_plan.md` - 原始重构计划
-- `brain/.../walkthrough.md` - Phase 1完成报告
+- `.agent/docs/chat-store-refactor-overview.md` - 完整重构方案总览
+- `.agent/docs/chat-store-refactor-phase1-report.md` - Phase 1完成报告
 - `src/store/chat/` - 已创建的模块代码
 
 **预计时间**: Phase 2 需要 2-3小时
