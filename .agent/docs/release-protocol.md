@@ -1,4 +1,4 @@
-# Android Release Build Protocol (NeuralFlow)
+# Android Release Build Protocol (Nexara)
 
 为了确保开发环境与发行环境的物理隔离，并保护签名密钥安全，特制定以下协议：
 

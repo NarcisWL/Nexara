@@ -1,4 +1,4 @@
-# NeuralFlow - 产品需求文档 (PRD)
+# Nexara - 产品需求文档 (PRD)
 
 > **更新日期**: 2026-01-05
 > **版本**: 1.1.11
@@ -8,7 +8,7 @@
 
 ## 1. 项目概览
 
-**项目名称**: NeuralFlow  
+**项目名称**: Nexara  
 **定位**: 商业级 AI 助手 + 知识管理 + RAG 增强对话工具  
 **平台**: Android (React Native)  
 **技术栈**: Expo SDK 52 + TypeScript + NativeWind + Zustand + expo-router + op-sqlite
