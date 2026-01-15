@@ -16,7 +16,7 @@
 
 ## P0 - 核心功能补全
 
-### 1. ApprovalCard介入输入功能 🔥
+### 1. ~~ApprovalCard介入输入功能~~ ✅
 
 **背景**:
 - Steerable Agent Loop已实现审批机制，但缺少用户介入输入框
@@ -38,14 +38,14 @@
 - `ApprovalCard.tsx`
 
 **完成标准**:
-- [ ] TextInput组件集成
-- [ ] 批准按钮文本动态变化
-- [ ] Timeline记录"Human Instruction: xxx"
-- [ ] 暗色/亮色模式适配
+- [x] TextInput组件集成
+- [x] 批准按钮文本动态变化
+- [x] Timeline记录"Human Instruction: xxx"
+- [x] 暗色/亮色模式适配
 
 ---
 
-### 2. 高风险工具识别优化 🔥
+### 2. ~~高风险工具识别优化~~ ✅
 
 **背景**:
 - 当前使用`includes`匹配，可能误判
@@ -65,9 +65,50 @@
 **位置**: `chat-store.ts` L2053-2056
 
 **完成标准**:
-- [ ] `HIGH_RISK_TOOLS`常量定义
-- [ ] 严格匹配逻辑
-- [ ] 测试覆盖（write/run/replace等工具）
+- [x] `HIGH_RISK_TOOLS`常量定义
+- [x] 严格匹配逻辑
+- [x] 测试覆盖（write/run/replace等工具）
+
+---
+
+### 3. chat-store解耦重构 🔥🏗️
+
+**背景**:
+- `chat-store.ts`已超过3100行，维护困难
+- 包含多个职责：消息管理、AgentLoop、RAG、工具执行、状态管理
+- 单一文件过大影响开发体验和性能
+
+**目标**:
+- **拆分为模块化架构**：
+  - `chat-store.ts` - 核心状态和基础操作
+  - `agent-loop.ts` - AgentLoop逻辑
+  - `tool-execution.ts` - 工具执行引擎
+  - `message-manager.ts` - 消息CRUD操作
+  - `approval-manager.ts` - 审批流程管理
+  - `session-manager.ts` - 会话管理
+
+**影响**:
+- 代码可维护性提升
+- 单元测试更容易
+- 减少合并冲突
+- 提升IDE性能
+
+**预计时间**: 4-6小时
+
+**关键原则**:
+- 保持向后兼容
+- 逐步迁移，确保功能正常
+- 增加类型安全性
+- 添加完整的JSDoc注释
+
+**完成标准**:
+- [ ] 设计模块拆分方案
+- [ ] 创建新模块文件
+- [ ] 迁移AgentLoop逻辑
+- [ ] 迁移工具执行逻辑
+- [ ] 更新所有导入引用
+- [ ] 验证所有功能正常
+- [ ] 删除冗余代码
 
 ---
 
@@ -383,19 +424,35 @@
 
 ---
 
-## 更新日志
+## 📝 CHANGELOG
 
-### 2026-01-15 (下午)
-- 添加虚拟拆分架构修复（P0）
-- 添加文件系统路径统一（P0）
-- 添加Timeline审批UI视觉增强（P2）
-- 完成ApprovalCard介入输入功能
-- 完成高风险工具识别优化
+### 2026-01-15 (下午 - 虚拟拆分完整修复)
+- ✅ 完成虚拟拆分架构3处关键修复（P0级）
+  - 跳过用户消息创建（L777-780）
+  - contextMsgs过滤优化（L1239-1246）
+  - assistant消息复用逻辑（L789-797）
+- ✅ 修复DeepSeek审批循环问题（resumption时跳过审批检测）
+- ✅ 实现thinking步骤保存到Timeline（过程文本不泄露到正文区）
+- ✅ 修复会话卡死bug（AgentLoop结束后重置loopStatus为idle）
+- ✅ TypeScript类型修复（添加idle状态到loopStatus）
+- ➕ 新增P0任务：chat-store解耦重构（3100+行→6个模块）
+- ➕ 新增P2任务：执行模式选择器UI位置优化
+- ➕ 新增P2任务：Embedding & Rerank模型本地化
 
-### 2026-01-15
-- 创建TODO路线图文档
-- 添加P0-P2优先级分类
-- 补充5个核心待办项（ApprovalCard输入、服务商优化、会话性能等）
+### 2026-01-15 (上午)
+- ✅ 完成ApprovalCard介入输入功能（P0-1）
+- ✅ 完成高风险工具识别优化（P0-2）
+- ➕ 新增P0任务：虚拟拆分架构修复
+- ➕ 新增P2任务：Timeline审批UI视觉优化
+
+### 2026-01-14
+- ➕ 新增P1任务：文件路径统一化（agent写入文件在文库中可见）
+- ➕ 新增P1任务：Flash模型输出优化
+- ➕ 新增P1任务：RAG指示器完整验证
+
+### Previous
+- ✅ 完成Virtual Split架构（`key`驱动Navigator重挂载）
+- ✅ 完成批量创建聊天会话功能（P1-1）
+- ✅ 完成服务商管理性能优化（P1-3）
 
 ---
-
