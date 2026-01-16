@@ -46,7 +46,25 @@
 
 ## Recently Completed (2026-01-16)
 
+### Session 1 (Morning)
 - [x] **执行模式设置**: 集成至 `ChatInput`，与模型栏视觉对齐。
 - [x] **视觉精简**: 移除会话设置及通用设置中冗余的执行模式配置项。
 - [x] **RAG 配置修复**: 修复预设按钮背景色样式，解决文档检索数量的状态绑定冲突。
 - [x] **Compact UI 规范**: 建立配置面板紧凑型布局标准，统一 SectionHeader/Card/Slider 样式。
+
+### Session 2 (Afternoon - Performance & LLM Optimization)
+- [x] **RAG 性能优化**:
+  - [x] 解决 DeepSeek R1 长思维链渲染阻塞问题（`ToolExecutionTimeline` 推理文本截断至 1000 字符）
+  - [x] `GraphExtractor` 和 `VectorStore` 添加线程让步机制（防止 UI 冻结）
+  - [x] `ProcessingIndicator` 限制同时渲染切片数量（最后 5 个，避免布局抖动）
+- [x] **RAG 指示器持久化**: 修复 RAG 状态指示器在检索结果为 0 时消失的 Bug（添加 `processingHistory` 检查）
+- [x] **Gemini/VertexAI 原生搜索冲突修复**: 
+  - [x] 自动过滤自定义 `search_internet` 工具当原生 `webSearch` 启用时
+  - [x] 系统提示词智能切换，引导模型优先使用原生能力
+  - [x] VertexAI Token 缓存机制审计确认（5 分钟过期缓冲）
+- [x] **执行模式默认值修复**: 
+  - [x] `ExecutionModeSelector` 回退逻辑从 `'auto'` 修正为 `'semi'`
+  - [x] `app/chat/agent/[agentId].tsx` 新建会话默认值从 `'auto'` 修正为 `'semi'`
+- [x] **发行包编译自动化**:
+  - [x] Worktree 同步、物理清理、图标替换（`assets/icon.png`）
+  - [x] 成功构建 v1.1.34 (build 34) 签名 APK

@@ -1,8 +1,8 @@
 # Nexara - 产品需求文档 (PRD)
 
-> **更新日期**: 2026-01-05
-> **版本**: 1.1.11
-> **状态**: Phase 13 完成，**正式版发布候选 (v1.1.11) - 知识图谱 2.0 + Release 闭环**
+> **更新日期**: 2026-01-16
+> **版本**: 1.1.34
+> **状态**: Phase 14 完成，**正式版 (v1.1.34) - 性能优化 + LLM 原生能力整合**
 
 ---
 
@@ -669,9 +669,86 @@ setTimeout(() => {
 
 ---
 
+## 15. 2026-01-16 更新日志: RAG 性能优化 + LLM 原生能力整合 (Phase 14)
+
+### 15.1 RAG 系统性能优化 ✅
+**目标**: 解决 RAG 系统在复杂场景下引发的 UI 冻结和渲染阻塞问题。
+
+**核心优化**:
+1. **推理链渲染优化**:
+   - 问题: DeepSeek R1 等模型的超长思维链（10k+ 字符）导致 `ToolExecutionTimeline` 渲染阻塞，引发 UI 冻结。
+   - 解决: 截断 Reasoning 文本至最后 1000 字符，保留核心思考过程同时大幅降低渲染负担。
+   - 影响文件: `src/components/skills/ToolExecutionTimeline.tsx`
+
+2. **后台处理线程让步**:
+   - 问题: `GraphExtractor` 和 `VectorStore` 的大批量操作阻塞主线程，导致界面卡死。
+   - 解决: 
+     - `GraphExtractor`: 每处理 5 个实体后插入 `await new Promise(r => setTimeout(r, 0))` 让步。
+     - `VectorStore`: 余弦相似度计算每 100 项后让步 5ms。
+   - 影响文件: `src/lib/rag/graph-extractor.ts`, `src/lib/rag/vector-store.ts`
+
+3. **ProcessingIndicator 渲染优化**:
+   - 问题: 大量 RAG 检索切片同时渲染导致布局震动和性能下降。
+   - 解决: 限制同时显示的切片数量为最后 5 个，隐藏历史切片。
+   - 影响文件: `src/features/chat/components/ProcessingIndicator.tsx`
+
+4. **RAG 指示器持久化修复**:
+   - 问题: 当 RAG 检索结果为 0 条且 `processingState` 重置为 `idle` 时，指示器会消失，用户无法得知检索已完成。
+   - 解决: 在 `ChatBubble` 中添加 `processingHistory` 检查，即使检索无结果也保持指示器显示（"无匹配" 状态）。
+   - 影响文件: `src/features/chat/components/ChatBubble.tsx`
+
+### 15.2 Gemini/VertexAI 原生能力整合 ✅
+**目标**: 解决 Gemini/VertexAI 模型在启用原生搜索时仍调用自定义 `search_internet` 工具的冲突问题。
+
+**问题诊断**:
+- 当用户启用 "Online Mode" (原生 Google Search Grounding) 时，API 同时接收到 `{ googleSearch: {} }` 和自定义的 `search_internet` 函数声明。
+- 由于系统提示词明确指示 "call 'search_internet' IMMEDIATELY"，模型优先选择自定义工具而忽略原生能力。
+
+**解决方案**:
+1. **智能工具过滤**:
+   - 在 `GeminiClient` 和 `VertexAiClient` 中，当 `options.webSearch` 为 `true` 时，自动从 `options.skills` 中过滤掉 `search_internet`。
+   - 确保 API 仅接收原生 `googleSearch` 工具，避免冗余。
+
+2. **系统提示词动态调整**:
+   - 原生搜索启用时: "USE YOUR NATIVE SEARCH CAPABILITY directly (do NOT call search_internet function)"
+   - 原生搜索禁用时: "call 'query_vector_db' or 'search_internet' IMMEDIATELY"
+   - 工具列表同步更新，正确反映可用工具。
+
+3. **VertexAI Token 缓存审计**:
+   - 确认 `getAccessToken()` 正确实现了 5 分钟过期缓冲机制。
+   - Token 仅在距离过期不足 5 分钟时才重新申请，避免频繁认证开销。
+
+**影响文件**:
+- `src/lib/llm/providers/gemini.ts`
+- `src/lib/llm/providers/vertexai.ts`
+
+### 15.3 用户体验修复 ✅
+**执行模式默认值统一**:
+- 问题: `ExecutionModeSelector` 和新建会话逻辑的回退值不一致，部分场景默认为 `'auto'` 而非预期的 `'semi'`。
+- 解决:
+  - `ExecutionModeSelector.tsx`: 回退值从 `'auto'` 改为 `'semi'`。
+  - `app/chat/agent/[agentId].tsx`: 新建会话初始化从 `executionMode: 'auto'` 改为 `'semi'`。
+- 影响: 所有新会话默认为安全的 "Semi-Automatic" 模式，需用户审批高风险操作。
+
+### 15.4 发行包编译闭环 ✅
+**成果**:
+- ✅ 版本号统一升级至 `1.1.34` (versionCode: 34)
+- ✅ 应用图标更新为最终版 `assets/icon.png`
+- ✅ Worktree 编译流水线自动化:
+  - Git 同步 → 物理清理 (Gradle Hygiene) → `npm install` → `expo prebuild` → `gradlew assembleRelease`
+- ✅ 签名 APK 成功生成: `Nexara-v1.1.34-Release-Signed-20260116.apk`
+- ✅ 资产清理: 删除所有过时图标文件（`logo1-3.png`, `spag-core.png` 等）
+
+**技术细节**:
+- 遵循 Rule 9.2 "跨设备 Gradle 编译准则"，每次构建前执行物理层 `.cxx/.gradle/build` 清理。
+- 签名配置通过 `plugins/withAndroidSigning.js` 自动注入，读取 `secure_env/` 密钥库。
+- 图标通过 `expo prebuild` 自动转换为多 DPI 的 `.webp` 适配格式。
+
+---
+
 **文档维护者**: AI Assistant  
-**最后更新**: 2026-01-15  
-**下次审查**: chat-store Phase 2集成前
+**最后更新**: 2026-01-16  
+**下次审查**: Phase 15 规划前
 
 ---
 
