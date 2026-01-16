@@ -486,7 +486,8 @@ onPress={() => {
   - `secure_env/secure.properties` 存储敏感凭证。
 - **构建命令**:
   - **禁止**直接运行 `gradlew assembleRelease` (会导致未签名或签名失败)。
-  - **必须**运行 `.\build-release.ps1`。
+  - **WSL/Linux**: 运行 `./build-release.sh`（Bash 自动化脚本）。
+  - **Windows**: 运行 `.\build-release.ps1`（PowerShell 自动化脚本）。
   - 该脚本会自动注入凭证 -> 编译 -> 清理现场。
 
 ### v4.2 - Global Crystal UI Overhaul (2026-01-13)
@@ -757,7 +758,7 @@ user -> assistant(tool_calls: [A]) -> tool(A)
 **核心修复**:
 - **版本归一 (Single Source of Truth)**: 同步 `app.json`, `package.json` 与 `android/app/build.gradle` 的版本号至 `1.1.32` (versionCode: 32)。
 - **签名逻辑重构**: 
-    - 优先级 1: 读取 `build-release.ps1` 注入的 `gradle.properties` 变量。
+    - 优先级 1: 读取 `build-release.sh` 或 `build-release.ps1` 注入的 `gradle.properties` 变量。
     - 优先级 2: 读取 `../../secure_env/` 下的物理文件（修正了之前的四级深度错误路径）。
     - 优先级 3: 回退至 `debug.keystore`。
 - **工程名称规范化**: 将 `package.json` 的 `name` 字段从 `temp_init` 更新为 `nexara`。
@@ -835,3 +836,15 @@ user -> assistant(tool_calls: [A]) -> tool(A)
 
 ---
 
+### Build Script Migration (2026-01-16)
+**Context**: 项目已从 Windows 环境迁移至 WSL2 Ubuntu。
+
+**变更**:
+- ✅ 新增 `build-release.sh` (Bash 版本，WSL/Linux 用)
+- ✅ 保留 `build-release.ps1` (PowerShell 版本，Windows 用)
+- ✅ 更新 `.agent/workflows/build-android-release.md` 引用新脚本
+- ✅ 更新 `PROJECT_MEMORY.md` 构建流程文档
+
+**推荐使用**:
+- WSL/Linux: `./build-release.sh`
+- Windows: `.\build-release.ps1`
