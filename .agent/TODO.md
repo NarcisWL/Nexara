@@ -7,8 +7,6 @@
 ## 高优先级 (High Priority)
 
 ### Steerable Agent Loop 完善
-- [ ] **干预输入交互 (Intervention)**: 在 Agent 运行时，输入框切换为"插入干预"模式，允许动态注入指令
-- [ ] **审批卡片 (Approval Card)**: 完善 Timeline 中的 `waiting_for_approval` 状态展示与 [批准/拒绝] 交互
 - [ ] **状态可视化**: 在 Timeline 顶部显示当前 Loop 进度 (e.g., Step 3/10)
 
 ### RAG 系统
@@ -23,11 +21,11 @@
 ## 中优先级 (Medium Priority)
 
 ### 协议兼容
-- [ ] 适配 `DeepSeek-V3` 官方工具调用特有协议（如果与标准 OpenAI 不同）
+- [x] 适配 `DeepSeek-V3` 官方工具调用特有协议（已通过 Virtual Split Architecture 完成）
 
 ### UI/UX
-- [ ] 二级设置页视觉统一 (Provider 弹窗、Agent 详情)
-- [ ] 提供"自定义 Agent 颜色"功能
+- [ ] 二级设置页视觉统一 (Provider 弹窗、Agent 详情) - 需进一步审计
+- [x] 提供"自定义 Agent 颜色"功能（ColorPickerPanel 已实现）
 
 ---
 
@@ -68,3 +66,6 @@
 - [x] **发行包编译自动化**:
   - [x] Worktree 同步、物理清理、图标替换（`assets/icon.png`）
   - [x] 成功构建 v1.1.34 (build 34) 签名 APK
+- [x] **Steerable Agent 完善**:
+  - [x] 干预输入交互：ApprovalCard 支持可选的修改指令输入
+  - [x] DeepSeek-V3 协议适配：Virtual Split Architecture 完整支持
