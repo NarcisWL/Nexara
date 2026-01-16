@@ -7,7 +7,7 @@
 ## 高优先级 (High Priority)
 
 ### Steerable Agent Loop 完善
-- [ ] **状态可视化**: 在 Timeline 顶部显示当前 Loop 进度 (e.g., Step 3/10)
+- [x] **状态可视化**: TaskMonitor 显示 "Step 3/10" 风格进度（已实现）
 
 ### RAG 系统
 - [ ] 优化 `QueryVectorDbSkill` 的 Top-K 检索策略，减少无关分块对上下文的污染
@@ -24,7 +24,7 @@
 - [x] 适配 `DeepSeek-V3` 官方工具调用特有协议（已通过 Virtual Split Architecture 完成）
 
 ### UI/UX
-- [ ] 二级设置页视觉统一 (Provider 弹窗、Agent 详情) - 需进一步审计
+- [x] 二级设置页视觉统一 (ProviderModal 、Agent 详情) - 已应用 Crystal UI 规范
 - [x] 提供"自定义 Agent 颜色"功能（ColorPickerPanel 已实现）
 
 ---
@@ -69,3 +69,7 @@
 - [x] **Steerable Agent 完善**:
   - [x] 干预输入交互：ApprovalCard 支持可选的修改指令输入
   - [x] DeepSeek-V3 协议适配：Virtual Split Architecture 完整支持
+  - [x] 状态可视化：TaskMonitor 显示 "Step 3/10" 风格进度
+- [x] **UI/UX 统一化**:
+  - [x] 二级设置页 (ProviderModal/Agent 详情) 已应用 Crystal UI 规范
+  - [x] 自定义 Agent 颜色: ColorPickerPanel 实现
