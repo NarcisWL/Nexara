@@ -13,6 +13,13 @@
 - [ ] 优化 `QueryVectorDbSkill` 的 Top-K 检索策略，减少无关分块对上下文的污染
 - [ ] PDF 文件导入支持
 
+### 本地模型功能 ⏳ 待实施
+- [ ] **本地模型推理模块** (方案已归档: `.agent/docs/local-model-feature-plan.md`)
+  - [ ] Phase 1: llama.rn 服务器集成 (~3h)
+  - [ ] Phase 2: 模型存储管理 (~2h)
+  - [ ] Phase 3: Local Provider 集成 (~2h)
+  - [ ] Phase 4: Embedding 本地化 (~3h)
+
 ### 工具链
 - [ ] 自动化构建补丁脚本 (Fix `build.gradle` after Expo Prebuild)
 
