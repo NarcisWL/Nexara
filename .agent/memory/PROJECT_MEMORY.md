@@ -766,3 +766,72 @@ user -> assistant(tool_calls: [A]) -> tool(A)
 - 确立了稳定的发行构建流水线，彻底解决了“发行包未签名或版本回退”的潜在风险。
 
 
+
+### v4.11 - RAG Performance & LLM Native Capabilities (Phase 14, 2026-01-16)
+**目标**: 解决 RAG 系统在复杂场景下的性能瓶颈,整合 Gemini/VertexAI 原生搜索能力,统一执行模式默认值。
+
+**核心进展**:
+
+1. **RAG 性能优化 (Performance Optimization)**:
+   - **推理链渲染阻塞修复**:
+     - **问题**: DeepSeek R1 等模型输出超长思维链(10k+ 字符)导致 `ToolExecutionTimeline` 渲染阻塞,引发UI冻结。
+     - **解决**: 截断 Reasoning 文本至最后 1000 字符,保留核心思考过程。
+     - **影响**: `src/components/skills/ToolExecutionTimeline.tsx`
+   - **后台处理线程让步**:
+     - **问题**: `GraphExtractor` 和 `VectorStore` 的大批量操作阻塞主线程。
+     - **解决**: 
+       - `GraphExtractor`: 每处理 5 个实体后插入 `await new Promise(r => setTimeout(r, 0))` 让步。
+       - `VectorStore`: 余弦相似度计算每 100 项后让步 5ms。
+     - **影响**: `src/lib/rag/graph-extractor.ts`, `src/lib/rag/vector-store.ts`
+   - **ProcessingIndicator 渲染优化**:
+     - **问题**: 大量 RAG 检索切片同时渲染导致布局震动。
+     - **解决**: 限制同时显示的切片数量为最后 5 个。
+     - **影响**: `src/features/chat/components/ProcessingIndicator.tsx`
+   - **RAG 指示器持久化**:
+     - **问题**: RAG 检索结果为 0 条且 `processingState` 重置为 `idle` 时,指示器消失。
+     - **解决**: 添加 `processingHistory` 检查,保持"无匹配"状态显示。
+     - **影响**: `src/features/chat/components/ChatBubble.tsx`
+
+2. **Gemini/VertexAI 原生能力整合 (Native Search Integration)**:
+   - **问题诊断**:
+     - 当用户启用原生 Google Search Grounding 时,API 同时接收 `{ googleSearch: {} }` 和自定义 `search_internet`。
+     - 系统提示词明确指示调用 `search_internet`,导致模型忽略原生能力。
+   - **解决方案**:
+     - **智能工具过滤**: 当 `options.webSearch` 为 `true` 时,自动从 `options.skills` 中过滤 `search_internet`。
+     - **动态提示词**: 原生搜索启用时提示"USE YOUR NATIVE SEARCH CAPABILITY",禁用时提示"call 'search_internet'"。
+     - **Token 缓存审计**: 确认 VertexAI 的 `getAccessToken()` 正确实现 5 分钟过期缓冲。
+   - **影响**: `src/lib/llm/providers/gemini.ts`, `src/lib/llm/providers/vertexai.ts`
+
+3. **执行模式默认值统一 (Execution Mode Defaults)**:
+   - **问题**: `ExecutionModeSelector` 和新建会话的回退值不一致,部分场景默认为 `'auto'`。
+   - **解决**:
+     - `ExecutionModeSelector.tsx`: 回退值从 `'auto'` 改为 `'semi'`。
+     - `app/chat/agent/[agentId].tsx`: 新建会话初始化从 `'auto'` 改为 `'semi'`。
+   - **影响**: 所有新会话默认为 Semi-Automatic 模式,需用户审批高风险操作。
+
+4. **发行包编译自动化 (Release Build Automation)**:
+   - **Worktree 流水线完善**:
+     - Git 同步 → 物理清理 (Gradle Hygiene) → npm install → expo prebuild → gradlew assembleRelease
+   - **版本升级**: v1.1.34 (versionCode: 34)
+   - **图标统一**: 更新为最终版 `assets/icon.png`,清理所有过时图标文件。
+   - **签名配置**: 通过 `plugins/withAndroidSigning.js` 自动注入 `secure_env/` 密钥库。
+   - **产物**: `Nexara-v1.1.34-Release-Signed-20260116.apk`
+
+**经验教训**:
+- ✅ **长文本渲染防御**: 对 LLM 输出的长文本(特别是思维链)必须截断保护,避免 UI 阻塞。
+- ✅ **后台任务让步**: 密集计算必须定期让出主线程,保证 UI 响应性。
+- ✅ **原生能力优先**: LLM 原生能力(如 Google Search)优先级应高于自定义工具封装。
+- ✅ **Token 缓存强制**: 所有需要认证的 API 客户端必须实现 Token 缓存机制。
+- ✅ **默认值安全性**: 系统默认值应选择更保守的选项(如 `semi` > `auto`)。
+
+**工程准则更新**:
+- **Rule 10 (新增)**: LLM 长文本输出防御 - 对展示层的 LLM 输出内容必须设置合理的字符限制(建议 1000-2000 字符)。
+- **Rule 9.1 (扩展)**: 协议扩展性 - LLM 客户端必须支持原生能力与自定义工具的智能切换,避免功能冲突。
+
+**文档同步**:
+- ✅ `TODO.md`: 更新 Phase 14 完成事项
+- ✅ `product-requirements.md`: 新增 Phase 14 更新日志,版本号升级至 v1.1.34
+- ✅ Release APK 生成并归档
+
+---
+
