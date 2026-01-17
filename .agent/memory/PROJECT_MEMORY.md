@@ -914,7 +914,8 @@ user -> assistant(tool_calls: [A]) -> tool(A)
 
 **发行构建**:
 - ✅ 成功执行物理层清理 (`rm -rf android/.cxx android/.gradle android/build`)
-- ✅ 完成 `worktrees/release` 编译，生成 v1.1.35 签名 APK
+- ✅ 完成 `worktrees/release` 编译，生成 v1.1.36 (Build 44) 签名 APK
+- ℹ️ **版本校准**: 修正 Version Code 回退问题，手动对齐至 Build 44。
 
 **经验教训**:
 - ✅ **Hook 顺序敏感性**: `useAnimatedStyle` 引用的外部变量（如 `isDark`）必须在其定义之前通过 Hook 获取，否则会捕获到 stale 值。
