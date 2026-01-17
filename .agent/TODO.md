@@ -1,6 +1,6 @@
 # Nexara TODO
 
-> **最后更新**: 2026-01-16
+> **最后更新**: 2026-01-18
 
 ---
 
@@ -80,3 +80,24 @@
 - [x] **UI/UX 统一化**:
   - [x] 二级设置页 (ProviderModal/Agent 详情) 已应用 Crystal UI 规范
   - [x] 自定义 Agent 颜色: ColorPickerPanel 实现
+
+## Recently Completed (2026-01-18)
+
+### Session 1 (Settings Panel Performance & UX)
+- [x] **设置界面性能优化 (Provider Management)**:
+  - [x] 修复 JSON 粘贴阻塞主线程问题 (新建 `ParsedInput.tsx` 组件)
+  - [x] 服务商列表 Memoization 优化 (`ProviderList.tsx` 抽离)
+  - [x] `ProviderModal.tsx` 重构，移除同步 JSON Parse
+- [x] **Model Management 优化**:
+  - [x] `Switch.tsx` 组件 `React.memo` 包装，阻断无效渲染
+  - [x] `ModelSettingsModal.tsx` 移除高开销 `key={model.uuid}`
+  - [x] 整合冗余 `useEffect` 与 `renderItem` 稳定化
+- [x] **标签页平滑过渡动画**:
+  - [x] 使用 Reanimated SharedValue 实现 Cross-fade 内容过渡
+  - [x] Tab 指示器平移动画 (`Easing.bezier` 非弹跳曲线)
+  - [x] 暗黑模式指示器颜色适配修复
+- [x] **服务商列表布局密度提升**:
+  - [x] 卡片高度压缩约 25%
+  - [x] 列表间距收紧 (16 -> 10)
+  - [x] 模型管理按钮改为轻量边框样式
+- [x] **发行包编译**: 成功编译并推送至 v1.1.35 (Deep Clean + Worktree Build)

@@ -872,3 +872,53 @@ user -> assistant(tool_calls: [A]) -> tool(A)
 - ✅ **视觉层级优于美观**: 过高的透明度会破坏 OCR 阅读和视障支持，功能性弹窗背景应保持高不透明度（>90%）。
 
 ---
+
+### v4.13 - Settings Panel Performance & UX (2026-01-18)
+**目标**: 解决设置面板中服务商和模型管理模块的性能瓶颈，并通过动画优化提升用户体验。
+
+**性能优化**:
+1.  **主线程解阻塞 (Main Thread Unblocking)**:
+    - **JSON 粘贴防卡顿**: 新建 `ParsedInput.tsx` 组件，将同步 JSON 解析改为防抖异步逻辑，彻底消除大段文本粘贴时的 UI 冻结。
+    - **影响文件**: `src/features/settings/components/ParsedInput.tsx`, `ProviderModal.tsx`
+2.  **服务商列表优化 (ProviderList Refactor)**:
+    - **组件抽离**: 将内联渲染逻辑抽离为独立的 `ProviderList.tsx` 和 `ProviderListItem` 组件。
+    - **Memoization**: 列表项使用 `React.memo` 包装，父组件状态变化（如 egg count）不再触发整个列表重渲染。
+    - **影响文件**: `src/features/settings/components/ProviderList.tsx`, `app/(tabs)/settings.tsx`
+3.  **Switch 组件优化 (FlashList Recycling)**:
+    - **问题**: `FlashList` 每回收一个列表项携带的 `Switch` 组件都会完整触发动画（配色切换振动）。
+    - **方案**: 使用 `React.memo` 包装 `Switch`；为初始挂载设置静默赋值路径，跳过 `withSpring` 动画。
+    - **影响文件**: `src/components/ui/Switch.tsx`, `ModelSettingsModal.tsx`
+4.  **ModelSettingsModal 整合**:
+    - 合并冗余 `useEffect` 钩子；移除 `Switch` 上多余的 `key={model.uuid}`（破坏 FlashList 视图复用）。
+    - 稳定化 `renderItem` 回调的依赖数组，防止每次渲染重新创建函数。
+
+**交互优化**:
+1.  **标签页平滑切换 (Tab Transitions)**:
+    - **问题**: "应用设置"与"服务商管理"标签页切换瞬间跳变，体验生硬。
+    - **方案**:
+        - 引入 Reanimated `tabProgress` SharedValue (0 = app, 1 = providers)。
+        - 指示器使用 `withTiming` + `Easing.bezier(0.33, 1, 0.68, 1)` 实现平滑非弹跳平移。
+        - 内容区并行渲染，通过 `useAnimatedStyle` 实现 Cross-fade + 微量平移过渡。
+    - **暗黑模式修复**: 调整指示器背景色从 `rgba(39, 39, 42, 0.9)` 到 `rgba(63, 63, 70, 0.9)`，并将 `useTheme` 移至组件顶部确保正确捕获。
+    - **影响文件**: `app/(tabs)/settings.tsx`
+2.  **服务商列表布局密度 (Provider List Density)**:
+    - **问题**: 单个服务商卡片高度过高，间距过大，信息密度低。
+    - **优化**:
+        - `listContainer.gap`: 16 → 10
+        - `cardContent.padding`: 12 → 10
+        - `headerRow.marginBottom`: 16 → 8
+        - `iconContainer` 尺寸: 40 → 36
+        - `modelButton`: 移除填充背景，改为 1px 边框样式
+    - **效果**: 单屏可多展示约 25% 的服务商条目。
+    - **影响文件**: `src/features/settings/components/ProviderList.tsx`
+
+**发行构建**:
+- ✅ 成功执行物理层清理 (`rm -rf android/.cxx android/.gradle android/build`)
+- ✅ 完成 `worktrees/release` 编译，生成 v1.1.35 签名 APK
+
+**经验教训**:
+- ✅ **Hook 顺序敏感性**: `useAnimatedStyle` 引用的外部变量（如 `isDark`）必须在其定义之前通过 Hook 获取，否则会捕获到 stale 值。
+- ✅ **FlashList 与 Memoization 配合**: `key` prop 会破坏视图复用，在 `FlashList` 场景下应移除或改为 `id` 等非强制刷新机制。
+- ✅ **Easing 曲线选择**: `Easing.bezier(0.33, 1, 0.68, 1)` 适用于 UI 元素平移，给予专业且不弹跳的手感。
+
+---
