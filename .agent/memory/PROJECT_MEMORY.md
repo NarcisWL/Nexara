@@ -848,3 +848,27 @@ user -> assistant(tool_calls: [A]) -> tool(A)
 **推荐使用**:
 - WSL/Linux: `./build-release.sh`
 - Windows: `.\build-release.ps1`
+
+### v4.12 - Local Inference Reliability & i18n Completion (2026-01-17)
+**目标**: 提升本地模型加载稳定性，消除 UI 交互噪音，并完成 Agent 技能层的全量本地化。
+
+**核心进展**:
+1.  **本地推理稳定性 (Local Inference P0)**:
+    - **自动加载加固**: 实现了 3 秒启动延迟机制，防止 App 启动瞬间资源竞争导致的崩溃。
+    - **逻辑闭环**: `initialize()` 现在返回布尔值，仅在成功加载至少一个模型时触发 "Local model ready" 提示，消除了文件缺失时的误报。
+    - **API 兼容性**: 修正了 `expo-file-system/legacy` 的导入方式，适配新版 SDK 规范。
+2.  **UI/UX 噪音消除**:
+    - **Toast 冲突修复**: 移除了 "Tools" 指示器切换时的原生 Haptics，改为完全由统一 Toast 系统托管，解决了震动重叠问题。
+    - **透明度优化**: 全局优化了 `ConfirmDialog` 组件。大幅降低了背景透明度（不透明度提升至 92%-95%），显著增强了文字易读性；移除了动画时的 `shadow-sm` 阴影残留。
+    - **RAG 面板视觉对齐**: 移除了 `AdvancedRetrievalPanel` 卡片的硬编码白色背景与阴影，统一采用 `bg-gray-50/50` 磨砂质感。
+3.  **多语言全量补全 (i18n Completion)**:
+    - **区块标题**: 设置页 "Intelligence" 补全为 "智能体"。
+    - **技能层全量翻译**: 实现了 `write_file`, `read_file`, `list_directory`, `manage_task` 等所有 Agent 核心技能的名称与描述本地化。
+    - **视觉纯净度**: 移除了 "智能体技能" 标题后多余的英文括号。
+
+**经验教训**:
+- ✅ **资源注入延迟**: 对 IO 密集型启动任务（如加载 4GB 以上权重）必须设置合理的 `setTimeout` 缓冲。
+- ✅ **原子化翻译**: 确保技能层动态 ID 与 `i18n` 键位严格对应，防止 UI 回退至原始 ID 字符串。
+- ✅ **视觉层级优于美观**: 过高的透明度会破坏 OCR 阅读和视障支持，功能性弹窗背景应保持高不透明度（>90%）。
+
+---
