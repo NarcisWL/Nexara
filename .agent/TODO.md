@@ -115,3 +115,12 @@
   - [x] 修复设置标签页指示器上下间距不一致几何缺陷
   - [x] 解决 Android 端 Transition 阴影残存闪烁 (基于 `borderBottom` 的物理厚度替代方案)
   - [x] 响应式调整滑块厚度从 2.5 -> 1.5 (极致细腻)
+
+### Session 3 (LLM Robustness & Rule 8.4)
+- [x] **网络层 MIME 类型强制校验 (Rule 8.4)**:
+  - [x] 在 `OpenAiClient`, `VertexAiClient`, `Gemini` 路径中全面落实
+  - [x] 拦截 HTML 错误页并转换为可读错误，防止 JSON Parse 崩溃
+- [x] **URL 启发式纠偏**:
+  - [x] 在 Embedding 请求阶段自动识别聚合器并补全 `/v1` 路径
+- [x] **代码重构**:
+  - [x] 消除 `EmbeddingClient` 与 `OpenAiClient` 的冗余 Fetch 逻辑 (DRY)
