@@ -92,22 +92,22 @@ src/store/
 - [x] 更新引用
 - [x] 测试验证
 
-### 阶段4a: 工具执行模块 ⚠️ 部分完成
+### 阶段4a: 工具执行模块 ✅ 已完成
 - [x] 提取tool-execution.ts
-- [ ] 完善 executeTools 逻辑（当前为包装器）
-- [ ] 处理步骤更新hook
-- [ ] 测试验证
+- [x] 完善 executeTools 逻辑
+- [x] 处理步骤更新hook
+- [x] 测试验证
 
-### 阶段4b: SQLite Session 迁移 🆕 待实施
+### 阶段4b: SQLite Session 迁移 ✅ 已完成
 > 详见 [chat-store-refactor-phase4b.md](./chat-store-refactor-phase4b.md)
 
-- [ ] 设计 sessions/messages 表 Schema
-- [ ] 创建 SessionRepository 数据访问层
-- [ ] 改造 SessionManager 使用 SQLite
-- [ ] 改造 MessageManager 使用 SQLite
-- [ ] 移除 AsyncStorage persist 中间件
-- [ ] 恢复 vectorization_tasks FK 约束
-- [ ] 端到端测试验证
+- [x] 设计 sessions/messages 表 Schema
+- [x] 创建 SessionRepository 数据访问层
+- [x] 改造 SessionManager 使用 SQLite
+- [x] 改造 MessageManager 使用 SQLite
+- [x] 移除 AsyncStorage persist 中间件
+- [x] 恢复 vectorization_tasks FK 约束
+- [x] 端到端测试验证
 
 ### 阶段5: 审批管理模块 ✅ 已完成
 - [x] 提取approval-manager.ts
@@ -115,10 +115,12 @@ src/store/
 - [x] 处理状态同步
 - [x] 测试验证
 
-### 阶段6: AgentLoop核心 ⚠️ 待完成
-- [ ] 提取agent-loop.ts（当前为包装器）
-- [ ] 迁移generateMessage和循环逻辑
-- [ ] 整合其他模块调用
+### 阶段6: AgentLoop核心 🔄 进行中
+- [ ] 扩展 AgentLoopManager 接口定义
+- [ ] 提取辅助函数 (formatContent, virtualSplit)
+- [ ] 迁移 generateMessage 核心逻辑
+- [ ] 迁移 regenerateMessage 逻辑
+- [ ] 依赖注入重构
 - [ ] 端到端测试
 
 ### 阶段7: 清理和优化 ❌ 待完成
