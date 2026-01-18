@@ -936,3 +936,40 @@ user -> assistant(tool_calls: [A]) -> tool(A)
 - ✅ **URL 自动化规则**: 第三方 API 聚合器路径不一，实现静默嗅探/补全比让用户手动填写更具鲁棒性。
 
 ---
+
+### v4.12 - SQLite Migration & Chat-Store Decoupling (2026-01-18)
+**目标**: 完成核心数据存储的本地化迁移 (Phase 4b)，并初步拆解 Chat Store 巨石架构 (Phase 5/6)。
+
+**核心架构 (Phase 4b - SQLite)**:
+1.  **Dual-Write Architecture**:
+    - **原理**: 保持 Zustand 作为 UI 响应式真理源，引入 SQLite 作为持久化真理源。
+    - **实现**: `SessionManager` 和 `MessageManager` 在更新 Zustand store 的同时，异步写入 `SessionRepository`。
+    - **优势**: 既保留了 React 的即时响应，又获得了 SQLite 的海量存储能力和查询性能。
+2.  **Seamless Migration**:
+    - 实现了透明迁移逻辑：启动时检查 SQLite，若为空则从 AsyncStorage 导入数据，迁移完成后自动切换数据源。
+3.  **Startup Logic**:
+    - App 启动流程优化：DB 初始化 -> 表结构检查 -> `loadSessions` (从 SQLite 拉取) -> UI 渲染。
+
+**Chat Store 重构 (Phase 5/6)**:
+1.  **模块化清理**:
+    - **Dead Code Removal**: 删除了 `streaming-handler.ts` (269 行) 和 `agent-loop.ts` (24 行) 等无用占位文件。
+    - **Pragmatism**: 经过评估，决定保留 `chat-store.ts` 中的 `generateMessage` 核心逻辑 (~1700 行)，避免单一开发者场景下的过度工程化。
+2.  **最终形态**:
+    - `chat-store.ts`: 2222 行 (核心状态 + 流程控制)
+    - `chat/` 子模块: 1533 行 (Message/Session/Approval/Tool 等独立职责)
+    - 总代码量减少 ~300 行 (-7.3%)。
+
+**Critical Fixes**:
+1.  **Vectorization Crash (P0)**:
+    - **现象**: 向量化进度卡在 10% 后闪退。
+    - **根因**: `TrigramTextSplitter` 在处理长难句时陷入死循环（索引步进为 0）。
+    - **修复**: 引入强制步进防御机制，确保 `startIndex` 始终向前移动。
+2.  **Local Model Auto-load (P1)**:
+    - **现象**: 全局关闭本地模型后，重启 App 仍会自动加载。
+    - **根因**: `LocalModelServer` 的 `autoLoadEnabled` 标志位与全局 `settings.localModelsEnabled` 解耦。
+    - **修复**: 在 `initialize` 和 `hydrate` 阶段强制检查全局开关状态。
+
+**UI Polish**:
+- **Model ID**: 开放编辑权限，支持用户手动修正自动识别错误的 ID。
+- **Provider List**: 修复暗黑模式下服务商名称不可见的问题 (`dark:text-white`)。
+
