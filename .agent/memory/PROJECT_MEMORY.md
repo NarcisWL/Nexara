@@ -973,3 +973,24 @@ user -> assistant(tool_calls: [A]) -> tool(A)
 - **Model ID**: 开放编辑权限，支持用户手动修正自动识别错误的 ID。
 - **Provider List**: 修复暗黑模式下服务商名称不可见的问题 (`dark:text-white`)。
 
+### v4.12 - Timeline-Embedded Loop Continuation (2026-01-19)
+**目标**: 解决 Agent 执行达到轮数上限时的生硬中断问题，实现无缝的"续杯"体验。
+
+**核心功能**:
+- **时间轴嵌入 (Timeline Integration)**:
+  - 摒弃了浮动卡片 (`ApprovalCard`)，将续杯请求转化为 `ExecutionStep` (type: `intervention_required`) 直接嵌入核心时间轴。
+  - **交互体验**: 采用蓝色系 (`RotateCw` icon) 区分于普通敏感操作审批，提供直观的 "End Task" 与 "Continue (+10)" 选项。
+- **动态额度管理 (Dynamic Budget)**:
+  - **问题**: 原先仅重置 `loopCount` 导致 `loopCount (0) > maxLoops (20)` 判定失效，或瞬间再次触发。
+  - **方案**: 引入 `continuationBudget` (Session 级状态)。判定公式升级为 `loopCount > maxLoops + continuationBudget`。
+  - **效果**: 每次续杯累加 budget，实现线性递增的执行空间。
+
+**Bug 修复**:
+- **绿色确认缺失**: 修复了 `resumeGeneration` 中查找 `targetMsg` 的逻辑。原逻辑仅查找 `pendingApprovalToolIds`，无法匹配续杯请求。现改为类型感知的双轨查找策略。
+- **键盘避让失效**: Android 端强制回归 `behavior="padding"`，修复了 `height` 模式下输入栏反向滑出屏幕的问题。
+
+**影响文件**:
+- `src/store/chat-store.ts`, `src/types/chat.ts`, `src/store/chat/approval-manager.ts`
+- `src/components/skills/ToolExecutionTimeline.tsx`
+- `app/chat/[id].tsx`
+
