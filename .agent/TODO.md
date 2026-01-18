@@ -101,3 +101,17 @@
   - [x] 列表间距收紧 (16 -> 10)
   - [x] 模型管理按钮改为轻量边框样式
 - [x] **发行包编译**: 成功编译 v1.1.36 (Build 44)
+
+### Session 2 (NewAPI Support & RAG Logic Fixes)
+- [x] **NewAPI / 聚合服务商适配**:
+  - [x] 新增 `openai-compatible` 类型与快捷预设
+  - [x] URL 启发式补全（动态自动添加 `/v1` 路径）
+  - [x] 统一 `ModelSettingsModal` 与 `ModelService` 的抓取逻辑
+  - [x] HTML 错误页前置拦截 (Rule 8.4)
+- [x] **RAG 设置修复**:
+  - [x] 修复 `GlobalRagConfigPanel` 导航错误跳转至统计页的问题
+  - [x] 强化清理逻辑：向量清空时同步物理删除知识图谱 `kg_nodes` / `kg_edges`
+- [x] **UI 细节打磨**:
+  - [x] 修复设置标签页指示器上下间距不一致几何缺陷
+  - [x] 解决 Android 端 Transition 阴影残存闪烁 (基于 `borderBottom` 的物理厚度替代方案)
+  - [x] 响应式调整滑块厚度从 2.5 -> 1.5 (极致细腻)

@@ -923,3 +923,16 @@ user -> assistant(tool_calls: [A]) -> tool(A)
 - ✅ **Easing 曲线选择**: `Easing.bezier(0.33, 1, 0.68, 1)` 适用于 UI 元素平移，给予专业且不弹跳的手感。
 
 ---
+
+#### Build 45 (2026-01-18)
+**主要变更**:
+- ✅ **服务商兼容性提升**: 新增 `openai-compatible` 类型，集成 URL 启发式补全（自动处理 `/v1` 路径），显著提升了 NewAPI/OneAPI 等聚合器成功率。
+- ✅ **RAG 导航纠偏**: 修复 `GlobalRagConfigPanel` 错误指向 `rag-debug` 的导航逻辑，引导至正确的 `rag-advanced` 配置页。
+- ✅ **数据清理完整性**: 向量库“一键清理”现在同步支持 `kg_nodes` 和 `kg_edges` 的物理级删除，确保知识图谱状态对齐。
+- ✅ **UI 立体感优化**: 弃用会导致 Android 闪烁的 `elevation` 属性，采用 `borderBottomWidth` 物理模拟方案，在保持质感的同时消除了过渡残影。
+
+**经验教训**:
+- ✅ **Android 渲染防御**: `elevation` 在动画过程中极易产生残影。对于简单的立体感需求，优先考虑加厚底边（Directional Borders）辅以 Subtle Shadow。
+- ✅ **URL 自动化规则**: 第三方 API 聚合器路径不一，实现静默嗅探/补全比让用户手动填写更具鲁棒性。
+
+---
