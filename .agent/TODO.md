@@ -124,3 +124,29 @@
   - [x] 在 Embedding 请求阶段自动识别聚合器并补全 `/v1` 路径
 - [x] **代码重构**:
   - [x] 消除 `EmbeddingClient` 与 `OpenAiClient` 的冗余 Fetch 逻辑 (DRY)
+
+### Session 4 (Timeline UI Polish \u0026 Model Behavior Analysis, 2026-01-21)
+- [x] **Timeline 交互优化**:
+  - [x] 实现持久化模糊页眉 (折叠显示汇总, 展开显示标题)
+  - [x] 统一 Chevron 方向逻辑 (展开=Up, 收起=Down)
+  - [x] 修复 Markdown 行内代码暗色模式渲染问题
+- [x] **图标精准对齐**:
+  - [x] TaskMonitor/Timeline/FinalResult 所有图标与头像中心竖向对齐
+  - [x] 像素级内边距调整 (29px/25px/22px)
+- [x] **国际化完善**:
+  - [x] 新增 "执行详情"/"最终结果"/"网页解析" 的中英文翻译键
+  - [x] 组件动态切换国际化标题
+- [x] **模型行为分析**:
+  - [x] 确认工具禁用时思考流保留机制
+  - [x] 验证 Gemini 原生搜索的指令抑制逻辑
+  - [x] 梳理 GLM/DeepSeek/Gemini 的思考模式架构差异
+- [x] **文档同步**:
+  - [x] 更新 PROJECT_MEMORY.md (v4.13 条目)
+  - [x] 生成详细 Walkthrough
+
+---
+
+## 待办事项状态更新 (2026-01-21)
+- ℹ️ 架构文档审核待进行 (UI 组件层级变更)
+- ℹ️ 下一步优先级: 考虑补充 UI 组件交互规范文档
+

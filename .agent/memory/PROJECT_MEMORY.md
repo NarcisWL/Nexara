@@ -1008,3 +1008,78 @@ user -> assistant(tool_calls: [A]) -> tool(A)
 - `src/components/skills/ToolExecutionTimeline.tsx`
 - `app/chat/[id].tsx`
 
+---
+
+### v4.13 - Timeline UI Refinement \u0026 Model Behavior Analysis (2026-01-21)
+**目标**: 深度打磨任务监控器 (Task Monitor) 和执行时间轴 (Tool Execution Timeline) 的交互逻辑、视觉对齐和多语言支持，并理清不同模型在工具禁用状态下的行为逻辑。
+
+**UI/UX 深度优化**:
+1.  **持久化模糊页眉 (Persistent Blurry Header)**:
+    - **问题**: 原时间轴的折叠/展开状态使用不同的 UI 模式,无统一交互焦点。
+    - **方案**: 实现了统一 `BlurView` 页眉组件,折叠时显示汇总信息(思考步数/工具调用统计),展开时显示"执行详情"标题。
+    - **效果**: 提供了一致的折叠/展开触发区域,用户交互逻辑更自然。
+    - **影响文件**: `src/components/skills/ToolExecutionTimeline.tsx`
+
+2.  **Chevron 方向逻辑统一 (Icon Logic Harmonization)**:
+    - **问题**: `ToolExecutionTimeline` 的折叠箭头方向与 `TaskMonitor` 不一致。
+    - **修复**: 统一逻辑为"展开向上 (ChevronUp),收起向下 (ChevronDown)"。添加缺失的 `ChevronUp` 组件导入。
+    - **影响文件**: `src/components/skills/ToolExecutionTimeline.tsx`
+
+3.  **图标垂直对齐 (Icon Vertical Centering)**:
+    - **目标**: 确保所有状态指示器(状态点、折叠箭头、步骤图标)与 `ChatBubble` 中头像的中心竖向对齐。
+    - **设计依据**: 头像(28px)位于容器边缘向右 37px (20px 容器边距 + 1px 边框 + 2px 内边距 + 14px 半径)。
+    - **调整细节**:
+      - `TaskMonitor` 页眉: `paddingLeft: 29px`
+      - `ToolExecutionTimeline` 页眉: `paddingLeft: 25px`
+      - `ToolExecutionTimeline` 步骤列表: `paddingLeft: 22px` (2px 微调)
+      - `TaskFinalResult` 分隔图标: `paddingLeft: 25px`
+    - **影响文件**: 
+      - `src/features/chat/components/TaskMonitor.tsx`
+      - `src/components/skills/ToolExecutionTimeline.tsx`
+      - `src/features/chat/components/TaskFinalResult.tsx`
+
+4.  **Markdown 样式修正 (Dark Mode Inline Code Fix)**:
+    - **问题**: 暗色模式下思考步骤内的行内代码块 (`\`code\``) 背景和文字颜色冲突,难以阅读。
+    - **修复**: 显式指定暗色模式下的 `backgroundColor` 和 `color` 样式,确保对比度。
+    - **影响文件**: `src/components/skills/ToolExecutionTimeline.tsx`
+
+**国际化完善 (i18n Expansion)**:
+- **新增翻译键**:
+  - `skills.timeline.executionDetails` ("执行详情" / "Execution Details")
+  - `skills.timeline.finalResult` ("最终结果" / "Final Result")
+  - `skills.names.browse_web_page` ("网页解析" / "Browse Web Page") + 描述
+- **组件本地化**:
+  - `ToolExecutionTimeline.tsx`: 动态显示 "EXECUTION DETAILS"
+  - `TaskFinalResult.tsx`: 动态显示 "最终结果"
+- **Bug 修复**: 修复了 `ToolExecutionTimeline` 中 `useI18n` Hook 未导入的编译错误。
+- **影响文件**: `src/lib/i18n.ts`, 上述两个组件文件。
+
+**模型行为系统性分析**:
+1.  **工具禁用场景研究 (Tooling Behavior Confirmation)**:
+    - **结论 1 (思考流保留)**: 当用户关闭 `Tools` 按钮时,模型的思考过程 (Thinking/Reasoning) 仍正常显示。思考和工具是两个并行处理流,彼此独立。
+    - **结论 2 (联网能力抑制)**: 对于 Gemini/VertexAI 等自带原生搜索的模型:
+      - **技术层面**: API 请求中 `{ googleSearch: {} }` 配置依然存在。
+      - **指令层面**: 系统会注入 `[TOOL USAGE: DISABLED]` 警告,要求模型仅凭内部知识回答。
+      - **实际表现**: 模型通常服从指令,主动停止联网,但在极少数极新议题下仍有概率突破指令。
+    - **影响文件**: `src/store/chat-store.ts`, `src/lib/llm/providers/gemini.ts`, `src/lib/llm/providers/vertexai.ts`
+
+2.  **思考模式架构梳理 (Thinking Mode Logic)**:
+    - **Gemini 系列**: 提供可选的 `thinkingConfig` API 参数,可通过输入栏的"思考等级"按钮(MINI/LOW/MED/HIGH)精准控制强度,默认 `HIGH`。
+    - **GLM/DeepSeek 系列**:
+      - **固有推理模型** (如 GLM-4.7, DeepSeek-R1): `forcedReasoning: true`,思考过程无法关闭,直接输出至 `reasoning_content`。
+      - **引导式模型**: 通过系统提示词注入 `<!-- THINKING_START -->` 边界标记,引导模型自主决定是否输出思考。
+    - **当前默认策略**: 只要模型具备思考能力,App 默认请求或引导思考输出。
+    - **影响文件**: `src/lib/llm/model-utils.ts`, `src/lib/llm/model-specs.ts`, `src/lib/llm/model-prompts.ts`
+
+**经验教训**:
+- ✅ **像素级对齐的价值**: UI 元素的细致对齐(如图标中心线匹配)对专业感和视觉一致性有显著影响。
+- ✅ **Markdown 渲染防御**: 在支持 Markdown 的容器内,必须显式控制代码块在暗色模式下的配色。
+- ✅ **思考与工具的隔离**: 思考(Reasoning)和工具(Tool Calls)是 LLM 输出的两个正交维度,应在架构层面保持独立处理。
+- ✅ **原生能力的指令抑制**: 对于内嵌能力(如 Google Search),在要求模型"禁用"时,仅能依赖指令引导,无法从协议层面完全屏蔽。
+
+**文档同步**:
+- ✅ `.agent/TODO.md`: 新增 Session 4 完成事项
+- ✅ `.agent/docs/architecture/`: 待更新架构文档以反映新的 UI 组件层级
+- ✅ Walkthrough 生成: 详细记录了本次 UI 调整的改动文件和视觉效果
+
+---
