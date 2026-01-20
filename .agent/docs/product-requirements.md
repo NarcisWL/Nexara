@@ -1,8 +1,8 @@
 # Nexara - 产品需求文档 (PRD)
 
-> **更新日期**: 2026-01-18
-> **版本**: 1.1.35
-> **状态**: Phase 15 进行中，**正式版 (v1.1.35) - 设置面板性能 & UX 优化**
+> **更新日期**: 2026-01-21
+> **版本**: 1.1.46
+> **状态**: Phase 16 进行中，**正式版 (v1.1.46) - 执行面板 UI 精雕与模型行为对齐**
 
 ---
 
@@ -1360,8 +1360,55 @@ setTimeout(() => {
 ---
 
 **文档维护者**: AI Assistant  
-**最后更新**: 2026-01-03  
-**下次审查**: Phase 13 规划前
+**最后更新**: 2026-01-21  
+**下次审查**: Phase 17 规划前
+
+---
+
+## 16. 2026-01-21 更新日志: 执行面板 UI 精雕与模型行为对齐 (Phase 16)
+
+### 16.1 任务监控与执行时间轴 UI 深度抛光 ✅
+**目标**: 提升 Agent 执行过程的透明度与交互的一致性。
+
+**核心改进**:
+1. **持久化模糊页眉 (Persistent Blurry Header)**:
+   - 实现了一个兼顾折叠汇总与展开详情的统一 `BlurView` 触发区。
+   - 折叠态：显示“思维步数”与“工具调用统计”。
+   - 展开态：显示“执行详情”标题。
+   - 解决了原页眉在不同状态下视觉焦点突跳的问题。
+
+2. **图标垂直对齐 (Icon Vertical Centering)**:
+   - **像素级校准**：通过精确调整 `paddingLeft` (29px / 25px / 22px)，确保 TaskMonitor、Timeline 步骤图标、FinalResult 状态点与 ChatBubble 头像中心线完美垂直对齐。
+   - 显著增强了 UI 的结构感和专业度。
+
+3. **交互逻辑统一**:
+   - 统一 Chevron 箭头行为：**展开向上 (Up)，收起向下 (Down)**。
+   - 修复了 `ToolExecutionTimeline` 中 Markdown 行内代码在暗色模式下的可读性问题（显式配色方案）。
+
+### 16.2 国际化 (i18n) 全面覆盖 ✅
+- 新增翻译键：`executionDetails` (执行详情), `finalResult` (最终结果), `browse_web_page` (网页解析)。
+- 实现了 Timeline 与 FinalResult 卡片的动态多语言标题切换。
+
+### 16.3 模型行为系统化对齐 ✅
+**背景**: 明确模型在工具禁用状态及深层思考模式下的表现。
+
+**核心结论**:
+1. **思考流保留 (Reasoning Retention)**:
+   - 确认“工具”与“思考”为两条独立流。关闭 `Tools` 按钮不影响思考过程的输出与展示。
+2. ** Gemini/VertexAI 指令抑制**:
+   - 验证了即使启用原生搜索参数，通过高优系统提示词注入 `[TOOL USAGE: DISABLED]` 仍能有效抑制模型联网行为。
+3. **多模型思考模式适配**:
+   - 支持了 Gemini 2.0 的 `thinkingLevel` 动态分级控制（MINI/LOW/MED/HIGH）。
+   - 统一了 GLM-4.7/DeepSeek-R1 的固有推理展示策略。
+
+**影响文件**:
+- `src/components/skills/ToolExecutionTimeline.tsx`
+- `src/features/chat/components/TaskMonitor.tsx`
+- `src/features/chat/components/TaskFinalResult.tsx`
+- `src/lib/i18n.ts`
+- `src/lib/llm/providers/gemini.ts`
+
+---
 
 ---
 

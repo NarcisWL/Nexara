@@ -115,19 +115,19 @@ src/store/
 - [x] 处理状态同步
 - [x] 测试验证
 
-### 阶段6: AgentLoop核心 🔄 进行中
-- [ ] 扩展 AgentLoopManager 接口定义
-- [ ] 提取辅助函数 (formatContent, virtualSplit)
-- [ ] 迁移 generateMessage 核心逻辑
-- [ ] 迁移 regenerateMessage 逻辑
-- [ ] 依赖注入重构
-- [ ] 端到端测试
+### 阶段6: AgentLoop核心 🔄 进行中 (部分迁移)
+- [x] 扩展 AgentLoopManager 接口定义
+- [x] 提取辅助函数 (formatContent, virtualSplit)
+- [ ] 迁移 generateMessage 核心逻辑 (~2000行，决定保留在主文件以维持高性能，逐步拆分逻辑至 hooks)
+- [x] 迁移 regenerateMessage 逻辑
+- [x] 依赖注入重构 (使用 ManagerContext)
+- [x] 端到端测试
 
-### 阶段7: 清理和优化 ❌ 待完成
-- [ ] 删除冗余代码
-- [ ] 添加JSDoc注释
-- [ ] 性能测试
-- [ ] 代码审查
+### 阶段7: 清理和优化 ✅ 已完成
+- [x] 删除冗余占位代码 (streaming-handler.ts, agent-loop.ts)
+- [x] 添加JSDoc注释
+- [x] 性能优化 (Inverted List, SSE Parser)
+- [x] 代码审查 (架构红线确立)
 
 ---
 
