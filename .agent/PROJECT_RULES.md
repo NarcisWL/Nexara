@@ -245,19 +245,6 @@ NeuralFlow/
 
 ---
 
-## 项目记忆
-
-### 重大事件记录
-
-#### 2025-12-26: 设置页崩溃修复
-- **问题**: Tab 切换时红屏崩溃
-- **根因**: PageLayout 嵌套 View + 语言切换器同步调用
-- **修复**: 移除嵌套 + 延迟原生桥接
-- **教训**: 用户触觉异常反馈是性能问题的重要信号
-
-
----
-
 ## 14. LLM抽象层架构规范 🔥
 
 > **版本**: v1.0 (2026-01-14)  
@@ -491,6 +478,69 @@ if (provider !== 'deepseek') {
 
 ---
 
-**文档版本**: 1.1  
-**最后更新**: 2026-01-15  
-**维护者**: AI Assistant + Project Team
+## 16. Chat Store 架构红线 (Chat Store Architecture Red Lines) 🔥
+
+> **版本**: v1.0 (2026-01-20)
+> **强制性**: ⭐⭐⭐⭐⭐ (Defcon 1/最高警戒)
+> **相关文件**: `src/store/chat-store.ts`
+
+### 16.1 核心原则
+
+**"No New Logic Policy (逻辑冻结协议)"**
+
+`chat-store.ts` 已经因为过度膨胀而在历史重构中引发了灾难性的 Bug 回归。为了阻止熵增，即刻起实施以下红线：
+
+1.  **禁止新增非 UI 逻辑**: `chat-store.ts` 仅作为 Zustand 状态容器和 UI 交互的胶水层。
+2.  **UI 状态允许适度扩展**: 涉及纯 UI 状态（如 `togglePanel`, `setViewMode`）的逻辑允许增加。
+3.  **零容忍膨胀**: 严禁将复杂的业务逻辑（如音视频处理、文件解析、算法等）直接写入 Store 内部函数。
+
+### 16.2 功能扩展规范 (Use Hooks Pattern)
+
+任何新功能（Feature）必须采用 **Hooks 注入模式**，严禁侵入 Store。
+
+#### ❌ 错误示例 (直接写入)
+
+```typescript
+// src/store/chat-store.ts
+actions: {
+  // ⛔️ 严禁这样写！
+  startSpeechToText: async () => {
+    await Audio.requestPermission();
+    // ... 50行语音识别逻辑
+    // ... 30行错误处理
+    set({ input: result });
+  }
+}
+```
+
+#### ✅ 正确示例 (Hook 封装)
+
+1.  **新建 Hook**: `src/features/chat/hooks/useSpeechToText.ts`
+2.  **在组件中组合**:
+
+```typescript
+// src/components/ChatInput.tsx
+const useSpeech = () => {
+  const { setInput } = useChatStore(); // 只从 Store 取最基本的 setter
+  
+  const startRecording = async () => {
+     // ... 逻辑全部在这里闭环
+     const text = await recognize();
+     setInput(text); // 仅在最后调用 Store 更新状态
+  };
+  
+  return { startRecording };
+};
+```
+
+### 16.3 审查清单 (Checklist)
+
+在修改 `chat-store.ts` 之前，必须自问：
+
+- [ ] 我是在添加新的**状态**吗？(允许)
+- [ ] 我是在添加新的**业务流程**吗？(禁止 -> 移至 Hook 或 Service)
+- [ ] 我是在修复现有 Bug 吗？(允许，但需尽量抽取逻辑)
+
+---
+
+**文档维护**: AI Assistant + Project Team
