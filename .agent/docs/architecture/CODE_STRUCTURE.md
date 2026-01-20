@@ -56,7 +56,6 @@
     │   ├── release-protocol.md                 # 发布流程
     │   ├── settings-panels-reference.md        # 设置面板参考
     │   └── steerable-agent-loop-design.md      # 可控代理循环
-    ├── memory/           # 项目记忆
     │   └── CODE_STRUCTURE.md   # 本文档
     ├── workflows/        # 工作流定义
     └── PROJECT_RULES.md  # 项目规则

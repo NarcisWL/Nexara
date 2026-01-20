@@ -323,7 +323,7 @@ content = content.replace(/<tool_call>.../, ''); // 直接清理XML
 ### 14.7 参考文档
 
 - **完整指南**: `.agent/docs/llm-abstraction-layer-guide.md`
-- **快速参考**: `.agent/memory/CODE_STRUCTURE.md` 第4章
+- **快速参考**: `.agent/docs/architecture/CODE_STRUCTURE.md` 第4章
 - **最佳实践**: 指南第四章
 
 ---

@@ -19,6 +19,21 @@
 
 ---
 
+### v4.14 - Documentation Audit & Memory Cleanup (2026-01-21)
+**目标**: 提升文档系统的信噪比，清理过时审计报告与冗余内存文件。
+
+**核心变更**:
+1. **文档归档 (Archive)**: 迁移 10 份已落地或已过期的项目报告及方案至 `.agent/docs/archive/`。
+2. **架构收束**: 将 `CODE_STRUCTURE.md` 从 `memory/` 移至 `docs/architecture/`，确立其作为动态架构指南的地位。
+3. **SSOT 更新**: 同步更新 `README.md`、`PROJECT_RULES.md` 及 PRD 中的所有交叉引用链接。
+4. **版本对齐**: 确保 PRD 与 `package.json` 版本一致 (v1.1.46)。
+
+**成果**:
+- ✅ 彻底消除了 `.agent/memory` 与 `.agent/docs` 之间的信息重叠。
+- ✅ 恢复了文档中心的“目录 -> 指南 -> 细节”分层结构逻辑。
+
+---
+
 ## 技术栈演进
 
 ### 核心技术选型

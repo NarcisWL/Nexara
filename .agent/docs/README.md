@@ -23,6 +23,7 @@
 | **[android-build-guide.md](./android-build-guide.md)** | Android 构建与签名指南 | 随构建流程变化 |
 | **[release-protocol.md](./release-protocol.md)** | 发布流程与版本管理协议 | 随流程优化更新 |
 | **[settings-panels-reference.md](./settings-panels-reference.md)** | 四大设置面板架构参考 (v2.0) | 随 UI 变化更新 |
+| **[architecture/CODE_STRUCTURE.md](./architecture/CODE_STRUCTURE.md)** | 项目目录结构与组件库全景 (v5.0) | 随目录调整更新 |
 
 ### 📂 历史与重构档案 (Archive)
 
@@ -41,7 +42,8 @@
 1. `../PROJECT_RULES.md`（核心开发准则）
 2. `llm-abstraction-layer-guide.md`（LLM 协议适配架构）
 3. `architecture/rag-system.md`（RAG 逻辑流转）
-4. `settings-panels-reference.md`（UI 结构映射）
+4. `architecture/CODE_STRUCTURE.md`（目录核心映射）
+5. `settings-panels-reference.md`（UI 结构映射）
 
 ---
 
@@ -49,8 +51,8 @@
 
 ### 2026-01-21 (重大审计与整理)
 - ✅ **PRD 升级**: 版本同步至 v1.1.46，新增 v4.13 执行面板优化日志。
-- ✅ **架构目录重组**: 创建 `architecture/` 子目录，迁移核心组件设计文档。
-- ✅ **清理归档**: 迁移 7 份已过期/已落地方案至 `archive/`。
+- ✅ **架构目录重组**: 创建 `architecture/` 子目录，迁移核心组件设计文档（含 `CODE_STRUCTURE.md`）。
+- ✅ **清理归档**: 迁移 10 份已过期/已落地/历史审计方案至 `archive/`。
 - ✅ **索引刷新**: 更新 `README.md` 与 `settings-panels-reference.md`。
 
 ### 2026-01-16
