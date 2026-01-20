@@ -1,4 +1,10 @@
-# NeuralFlow 项目规则与准则
+# Nexara 项目规则与准则 (v4.12 - 2026-01-20)
+
+> [!CAUTION]
+> **顶级红线指令 (Highest Priority Directive)**:
+> **严禁在项目根目录 (`/home/lengz/Nexara`) 构建发行包 (Release APK)！**
+> 发行包构建**永远且只能**在专用的 Worktree 编译工厂 (`/home/lengz/Nexara/worktrees/release`) 中进行。
+> 任何违反此规则的行为均被视为破坏开发/编译环境一致性的严重错误。本规则永久有效，不得以任何理由规避。
 
 ## 项目概述
 
