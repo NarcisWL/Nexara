@@ -5,17 +5,26 @@
 
 ---
 
-### v4.12 - Build Isolation Red-Line Enforcement (2026-01-20)
-**目标**: 固化“发行包构建隔离”红线，防止根目录开发环境污染。
+### v1.1.47 - Release Build & Documentation Integrity Audit (2026-01-21)
+**目标**: 完成 v1.1.47 正式版构建，并对全量文档进行健康度审计与去重清理。
 
 **核心变更**:
-1. **红线确立**: 在 `.agent/PROJECT_RULES.md` 顶部插入顶级指令，规定发行包**仅限**在 Worktree 编译工厂中产出。
-2. **环境清理**: 强制同步远程 `main` 代码至本地并覆盖，清理所有本地未跟踪改动及冲突分支。
-3. **流水线迁移**: 彻底将 `build-release.sh` 操作范围锁定在 `worktrees/release` 目录下。
+1. **正式版构建**: 
+   - 在 `worktrees/release` 隔离环境中成功产出 `Nexara-v1.1.47-Release-Signed-20260121.apk`。
+   - 版本由 `1.1.46` 升级至 `1.1.47` (Code 54)。
+2. **文档系统重组**:
+   - **去重归档**: 迁移 10 份历史方案与过时审计报告至 `archive/`。
+   - **架构固化**: 将 `CODE_STRUCTURE.md` 确定为长期架构指南并移至 `docs/architecture/`。
+   - **设置面板明晰**: 彻底补全 `settings-panels-reference.md` 中的所有 TBD 字段，确立四大设置层级路由。
+3. **SSOT 基准对齐**: 同步更新 PRD、README 及规则中的版本号与交叉引用链接。
 
 **成果**:
-- ✅ 根目录环境恢复纯净开发态。
-- ✅ 建立了不可撼动的构建隔离铁律。
+- ✅ 文档系统信噪比显著提升，目录结构清晰可查（README/architecture）。
+- ✅ 确立了稳定的 Release 流水线隔离操作规范。
+
+---
+
+### v4.14 - Documentation Audit & Memory Cleanup (2026-01-21)
 
 ---
 

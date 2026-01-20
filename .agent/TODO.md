@@ -125,7 +125,10 @@
 - [x] **代码重构**:
   - [x] 消除 `EmbeddingClient` 与 `OpenAiClient` 的冗余 Fetch 逻辑 (DRY)
 
-### Session 4 (Timeline UI Polish \u0026 Model Behavior Analysis, 2026-01-21)
+### Session- [x] v4.13: Timeline UI Refinement & Model Behavior Analysis (2026-01-21)
+- [x] v4.14: Documentation Integrity Audit & v1.1.47 Release Build (2026-01-21)
+
+---
 - [x] **Timeline 交互优化**:
   - [x] 实现持久化模糊页眉 (折叠显示汇总, 展开显示标题)
   - [x] 统一 Chevron 方向逻辑 (展开=Up, 收起=Down)
