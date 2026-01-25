@@ -8,9 +8,9 @@
 
 ### 1. 全局动画与交互升级 (Native-like Transitions)
 > **来源**: `.agent/docs/animation_implementation_plan.md`
-- [ ] **Tab 切换动画重构**: 替换 Expo Router 默认 Tabs，实现基于索引的左右滑动切换 (Forward/Backward)。
-- [ ] **Stack 导航手势优化**: 确保所有二级页面支持全屏边缘手势返回。
-- [ ] **原生桥接延迟规范**: 严格执行 `10ms` 延迟触发 Haptics 规则。
+- [x] **Tab 切换动画重构**: 采用 Native Fade (淡入淡出) 策略，弃用高开销的自定义左右滑动方案。
+- [x] **Stack 导航手势优化**: 启用 iOS 全屏边缘手势 (`fullScreenGestureEnabled`)。
+- [x] **原生桥接延迟规范**: 严格执行 `10ms` 延迟触发 Haptics 规则。
 
 ### 2. 工具链稳定性
 - [ ] **自动化构建补丁脚本**: 解决 Expo Prebuild 后需手动 Patch `build.gradle` 的问题。
