@@ -547,6 +547,60 @@ const useSpeech = () => {
 - [ ] 我是在添加新的**业务流程**吗？(禁止 -> 移至 Hook 或 Service)
 - [ ] 我是在修复现有 Bug 吗？(允许，但需尽量抽取逻辑)
 
+
 ---
+
+## 17. React Hooks 安全红线 (Hooks Safety Protocol) 🔥
+
+> **版本**: v1.0 (2026-01-29)
+> **强制性**: ⭐⭐⭐⭐⭐ 运行时稳定准则
+
+**严禁在 Hooks 调用前包含条件返回 (Conditional Returns)。**
+
+React 的 Reconciliation 机制要求所有 Hook 的调用顺序在每次渲染中必须完全一致。任何 `if (condition) return;` 必须严格位于所有 `useState`, `useEffect`, `useMemo` 以及 `Custom Hooks` (如 `useStore`) 之后。
+
+**❌ 错误示例 (导致崩溃)**
+```tsx
+const MyComponent = ({ id }) => {
+  const session = useStore(s => s.sessions[id]);
+  if (!session) return null; // 😱 致命错误：导致后续 Hook 调用顺序错乱
+  
+  const [value, setValue] = useState(0); // 💥 当 session 存在时才会执行，违反规则
+  const config = useMemo(() => ..., []);
+};
+```
+
+**✅ 正确示例 (Top-Level Declaration)**
+```tsx
+const MyComponent = ({ id }) => {
+  const session = useStore(s => s.sessions[id]);
+  const [value, setValue] = useState(0); // 🛡️ 始终执行
+  const config = useMemo(() => ..., []); // 🛡️ 始终执行
+  
+  if (!session) return null; // ✅ 安全返回
+};
+```
+
+---
+
+## 18. 流式截断防御 (Stream Buffer Defense)
+
+> **版本**: v1.0 (2026-01-29)
+> **强制性**: ⭐⭐⭐⭐⭐ 数据完整性准则
+
+在处理 LLM 流式输出（Streaming Response）时，必须实施 **"双重冲刷 (Double Flush)"** 策略以防止结尾截断。
+
+1.  **Throttle Timer**: 正常流式过程中，使用 200ms-500ms 的防抖更新 UI。
+2.  **Explicit Final Flush**: 当接收到 `[DONE]` 信号或循环结束时，**必须**显式读取缓冲区（Buffer）中的剩余字符，手动合并并执行最后一次同步更新。严禁直接跳出循环而丢弃缓冲区残余。
+
+```typescript
+// ✅ 必须包含的逻辑
+if (contentBuffer.length > 0) {
+    const tail = contentBuffer.join('');
+    finalContent += tail; // 手动合并
+    flushToStore(finalContent); // 强制同步
+}
+```
+
 
 **文档维护**: AI Assistant + Project Team
