@@ -20,11 +20,13 @@
 
 ## 🟡 中优先级 (Medium Priority)
 
-### 3. MCP 集成探索 (Model Context Protocol) 🚧 实验性
+### 3. MCP 集成探索 (Model Context Protocol) ✅ 已完成
 > **来源**: `.agent/docs/archive/mcp_feasibility_report.md`
-- [ ] **Phase 1: SDK 验证**: 验证 `@modelcontextprotocol/sdk` 在 RN 环境的兼容性。
-- [ ] **Phase 2: 基础连接**: 实现 SSE 客户端，连接到简单的测试服务器（Localhost）。
-- [ ] **Phase 3: 简单工具调用**: 让 Agent 能够读取服务器上的一个文本文件。
+- [x] **Phase 1: SDK 验证**: 验证 `@modelcontextprotocol/sdk` 在 RN 环境的兼容性。
+- [x] **Phase 2: 基础连接**: 实现 SSE 客户端，连接到简单的测试服务器。
+- [x] **Phase 3: 递归 Schema 转换**: 实现递归 JSON Schema 到 Zod 转换器，支持复杂参数（如 Alpha Vantage）。
+- [x] **Phase 4: 健壮性加固**: 实现全链路日志、500 错误捕获及防御性参数注入。
+
 
 ### 4. RAG 系统持续优化
 - [ ] **多模态 RAG**: 研究图片 RAG 方案（目前仅支持文本/PDF）。
@@ -41,7 +43,16 @@
 
 ---
 
-## ✅ 已完成功能归档 (Completed Features)
+### 2026-01-30: MCP 协议重构与 500 错误维护 (v1.2.1)
+- [x] **MCP 协议全量适配**:
+  - 实现递归 JSON Schema 转 Zod 转换引擎，一举解决 Alpha Vantage 等复杂工具的 500 错误。
+  - 在 `McpClient` 中引入请求流水日志与防御性参数注入（Empty arguments fallback）。
+- [x] **UI 细节与对比度打磨**:
+  - 修复 MCP 设置面板中“已发现工具”次级标题在暗黑模式下的对比度问题。
+  - 优化 `SkillsSettingsPanel` 的文本颜色层级。
+- [x] **编译流水线加固**:
+  - 解决 Worktree 环境下的 Gradle 代理初始化问题。
+  - 解决 `expo-router` 路径解析导致的 Metro 打包冲突。
 
 ### 2026-01-25: 核心能力里程碑
 - [x] **本地模型 (Local Model) 完整落地**:
