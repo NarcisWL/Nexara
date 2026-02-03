@@ -25,12 +25,16 @@
 ## 🧊 待办规划 (Backlog)
 
 ### High Priority
-- [ ] **全局动画升级**: 实现 Native-like 的转场体验 (Hero animations, Shared Element)。
-- [ ] **应用冷启动优化**: 分析首屏渲染耗时 (FCP)。
+| ID | 任务名称 | 方案草稿 |
+| :--- | :--- | :--- |
+| **003** | **全局动画升级** | [003_global_animation_upgrade.md](docs/todos/003_global_animation_upgrade.md) |
+| **004** | **应用冷启动优化** | [004_app_cold_start_optimization.md](docs/todos/004_app_cold_start_optimization.md) |
 
 ### Medium Priority
-- [ ] **多模态 RAG**: 支持图片内容的向量化检索。
-- [ ] **性能监控**: 集成 Performance Monitor。
+| ID | 任务名称 | 方案草稿 |
+| :--- | :--- | :--- |
+| **005** | **多模态 RAG** | [005_multimodal_rag.md](docs/todos/005_multimodal_rag.md) |
+| **006** | **性能监控** | [006_performance_monitoring.md](docs/todos/006_performance_monitoring.md) |
 
 ---
 
@@ -38,3 +42,4 @@
 > 2026-02-03 以前的历史任务请查看 Git Log 或旧版归档。
 - [x] **本地模型落地**: `llama.rn` 集成 (v1.2.0)
 - [x] **Markdown 渲染引擎重构**: Webview 迁移 (v.1.1.0)
+- [x] **v1 动画策略**: [000_animation_v1_strategy.md](docs/archive/000_animation_v1_strategy.md)
