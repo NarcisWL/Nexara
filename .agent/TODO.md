@@ -1,73 +1,40 @@
-# Nexara TODO
+# Nexara Project Dashboard
 
-> **最后更新**: 2026-01-25
-
----
-
-## 🔴 高优先级 (High Priority)
-
-### 1. 全局动画与交互升级 (Native-like Transitions)
-> **来源**: `.agent/docs/animation_implementation_plan.md`
-- [x] **Tab 切换动画重构**: 采用 Native Fade (淡入淡出) 策略，弃用高开销的自定义左右滑动方案。
-- [x] **Stack 导航手势优化**: 启用 iOS 全屏边缘手势 (`fullScreenGestureEnabled`)。
-- [x] **原生桥接延迟规范**: 严格执行 `10ms` 延迟触发 Haptics 规则。
-
-### 2. 工具链稳定性
-- [ ] **自动化构建补丁脚本**: 解决 Expo Prebuild 后需手动 Patch `build.gradle` 的问题。
-- [ ] **应用冷启动优化**: 分析首屏渲染耗时，优化 Zustand Hydration 流程。
+> **单一事实来源 (SSOT)**: 
+> 本文档仅作为仪表盘。具体实施细节请查阅 [.agent/docs/todos](docs/todos) 下的方案文档。
 
 ---
 
-## 🟡 中优先级 (Medium Priority)
+## 🚀 进行中 (Active Tasks)
 
-### 3. MCP 集成探索 (Model Context Protocol) ✅ 已完成
-> **来源**: `.agent/docs/archive/mcp_feasibility_report.md`
-- [x] **Phase 1: SDK 验证**: 验证 `@modelcontextprotocol/sdk` 在 RN 环境的兼容性。
-- [x] **Phase 2: 基础连接**: 实现 SSE 客户端，连接到简单的测试服务器。
-- [x] **Phase 3: 递归 Schema 转换**: 实现递归 JSON Schema 到 Zod 转换器，支持复杂参数（如 Alpha Vantage）。
-- [x] **Phase 4: 健壮性加固**: 实现全链路日志、500 错误捕获及防御性参数注入。
-
-
-### 4. RAG 系统持续优化
-- [ ] **多模态 RAG**: 研究图片 RAG 方案（目前仅支持文本/PDF）。
-- [ ] **增量索引机制**: 避免每次文件变动都重新全量向量化。
+| ID | 任务名称 | 优先级 | 对应方案文档 | 当前进度 |
+| :--- | :--- | :--- | :--- | :--- |
+| **002** | **RAG 异步体验优化** | 🔴 High | [new_01_rag_async_optimization_plan.md](docs/todos/new_01_rag_async_optimization_plan.md) | **Step 1 Done** (Param Tuning). Pending Phase 2 (Prefetch). |
+| **---** | **工具链稳定性** | 🟡 Medium | N/A (Backlog) | 待修复 `build.gradle` patch 脚本问题。 |
 
 ---
 
-## 🟢 低优先级 (Low Priority)
+## ✅ 最近完成 (Recently Completed)
 
-### 5. 基础设施与质量
-- [ ] **性能监控 (APM)**: 集成 Firebase Performance 或 Sentry Tracing 以量化掉帧。
-- [ ] **单元测试**: 对核心 Reducer (Chat/Settings) 补充 Jest 测试用例。
-- [ ] **文档完善**: 更新 API 接入文档以便社区贡献新的 Provider。
+| ID | 任务名称 | 完成时间 | 实施方案 (Archive) | 验证结论 |
+| :--- | :--- | :--- | :--- | :--- |
+| **001** | **MCP SSE 传输支持** | 2026-02-03 | [001_mcp_sse_transport_plan_done.md](docs/archive/001_mcp_sse_transport_plan_done.md) | 单元测试通过 (4 pass)。代码已合入主线。 |
 
 ---
 
-### 2026-01-30: MCP 协议重构与 500 错误维护 (v1.2.1)
-- [x] **MCP 协议全量适配**:
-  - 实现递归 JSON Schema 转 Zod 转换引擎，一举解决 Alpha Vantage 等复杂工具的 500 错误。
-  - 在 `McpClient` 中引入请求流水日志与防御性参数注入（Empty arguments fallback）。
-- [x] **UI 细节与对比度打磨**:
-  - 修复 MCP 设置面板中“已发现工具”次级标题在暗黑模式下的对比度问题。
-  - 优化 `SkillsSettingsPanel` 的文本颜色层级。
-- [x] **编译流水线加固**:
-  - 解决 Worktree 环境下的 Gradle 代理初始化问题。
-  - 解决 `expo-router` 路径解析导致的 Metro 打包冲突。
+## 🧊 待办规划 (Backlog)
 
-### 2026-01-25: 核心能力里程碑
-- [x] **本地模型 (Local Model) 完整落地**:
-  - 集成 `llama.rn` (v0.10+)，支持 GGUF 模型加载与推理。
-  - 实现 `LocalModelServer`，支持主模型、Embedding 模型、Rerank 模型热插拔。
-  - 实现混合状态管理 (Zustand + AsyncStorage) 与自动恢复机制。
-- [x] **RAG 系统增强**:
-  - 实现 PDF 解析 (`PdfExtractor` + `pdf.js`)。
-  - 实现 Top-K 检索优化 (集成 BGE/Jina Reranker 本地推理)。
-  - 网络层健壮性：强制 MIME 校验，前置拦截 HTML 错误页。
-- [x] **Markdown 渲染归一化**:
-  - 优化 `ChatBubble`，支持任务自动化结果 (Thinking/Task) 的流式渲染与样式统一。
-  - 修复 `TaskFinalResult` 独立组件导致的样式割裂与功能缺失。
+### High Priority
+- [ ] **全局动画升级**: 实现 Native-like 的转场体验 (Hero animations, Shared Element)。
+- [ ] **应用冷启动优化**: 分析首屏渲染耗时 (FCP)。
 
-### 2026-01-18: UI/UX 与 性能优化
-- [x] **设置页重构**: Crystal UI 规范落地，Provider/Agent 设置页视觉统一。
-- [x] **性能优化**: 解决 JSON 粘贴卡顿、列表渲染 Memoization、长思维链截断优化。
-- [x] **动画细节**: Tab 指示器平滑过渡，页面转场阴影修复。
+### Medium Priority
+- [ ] **多模态 RAG**: 支持图片内容的向量化检索。
+- [ ] **性能监控**: 集成 Performance Monitor。
+
+---
+
+## 🗄️ 归档历史
+> 2026-02-03 以前的历史任务请查看 Git Log 或旧版归档。
+- [x] **本地模型落地**: `llama.rn` 集成 (v1.2.0)
+- [x] **Markdown 渲染引擎重构**: Webview 迁移 (v.1.1.0)

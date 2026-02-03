@@ -235,7 +235,34 @@ echo "检查PRD版本号..."
 
 ---
 
+---
+
+## 5. 任务追踪规范 (Task Tracking Standard)
+
+### 核心原则
+采用 **"索引-详情" (Index-Detail)** 模式，确保任务的可追溯性与上下文完整性。
+
+### 角色定义
+1.  **Dashboard (`.agent/TODO.md`)**: 
+    - 唯一的项目进度仪表盘。
+    - **严禁**直接在此处书写长篇大论的方案。
+    - 必须包含指向具体设计文档的链接。
+
+2.  **Inbox (`.agent/docs/todos/`)**:
+    - 存放活动任务的详细设计方案 (RFC/Implementation Plan)。
+    - 命名规范: `NNN_topic_name.md` (e.g., `002_rag_optimization.md`)。
+
+3.  **Archive (`.agent/docs/archive/`)**:
+    - 存放已完成任务的方案文档。
+    - 任务完成后，必须将对应文档从 `todos/` 移动至此，并更新状态为 ✅ Verified。
+
+### 状态流转
+`Draft` (in todos/) -> `Active` (linked in TODO.md) -> `Completed` -> `Archived` (mv to archive/)
+
+---
+
 ## 责任分配
+
 
 ### AI Assistant
 - 主动提醒文档更新
