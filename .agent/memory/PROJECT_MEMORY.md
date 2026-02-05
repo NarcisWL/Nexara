@@ -6,6 +6,32 @@
 
 ---
 
+### v5.0 - FlashList → FlatList 架构迁移 (2026-02-05)
+**目标**: 解决聊天消息列表滚动时的回弹/跳变问题。
+
+**问题背景**:
+- 聊天界面在滚动包含 Markdown 表格的历史消息时，出现明显的"回弹/跳变"现象
+- 问题在 FlashList 引入前就已存在，多次优化（高度缓存、`removeClippedSubviews`、入场动画）均无效
+- 经对比测试，确认为 FlashList 内部机制与复杂 Markdown 渲染的冲突
+
+**架构决策**:
+- **弃用 FlashList**，改用 React Native 原生 FlatList
+- **清理高度缓存机制**：移除 `layoutHeightsRef`、`onLayout` 回调、`overrideItemLayout` 等相关代码
+
+**权衡分析**:
+| 维度 | FlashList | FlatList |
+|------|-----------|----------|
+| 内存占用 | 低（Cell 回收） | 中（保留渲染过的 Cell） |
+| 滚动稳定性 | ❌ 存在回弹 bug | ✅ 稳定 |
+| 适用场景 | 大量同质化列表 | 中等规模异构列表 |
+
+**选择 FlatList 的理由**:
+1. 聊天场景消息数量通常 <100 条，内存压力可接受
+2. 文本内容内存占用极低（~1-2 KB/条）
+3. 用户体验稳定性优先于理论性能
+
+**相关文档**: `.agent/docs/archive/2026-02-05-flashlist-deprecation.md`
+
 ### v1.1.47 - Release Build & Documentation Integrity Audit (2026-01-21)
 **目标**: 完成 v1.1.47 正式版构建，并对全量文档进行健康度审计与去重清理。
 
