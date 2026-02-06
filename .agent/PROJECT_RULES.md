@@ -626,7 +626,38 @@ if (contentBuffer.length > 0) {
 自问三个问题，只要有一个为“是”，即刻停止提交：
 - [ ] 这个修改是否为了修一个 Bug 而引入了架构上的反模式？
 - [ ] 这个修改是否让系统变得更难理解、更难维护？
-- [ ] 这个修改是否违背了当初设计这个模块的初衷（例如为了跑通测试而让多线程变回单线程）？
+
+## 20. 设置页 UI 一致性规范 (Settings UI Consistency Standard)
+
+> **版本**: v1.0 (2026-02-06)
+> **强制性**: ⭐⭐⭐⭐ 视觉统一准则
+> **触发背景**: 超级助手设置页因组件 Naked Rendering 导致样式崩坏
+
+### 20.1 核心要求
+所有设置页面（包括子配置页、插件配置页）中的功能模块，**禁止**直接裸渲染（Naked Rendering）自定义组件。
+
+### 20.2 实施标准
+必须使用统一的容器组件进行包裹，以确保边距、圆角、背景色与全局设计语言保持一致。
+
+```tsx
+// ❌ 错误示范：直接放置组件
+<ScrollView>
+  <MyCustomPanel />  // 导致失去卡片样式，贴边或宽度失控
+</ScrollView>
+
+// ✅ 正确示范：使用 SettingsSection 或 Card 包裹
+<SettingsSection title="模块标题">
+  <View className="px-4 pb-4">
+    <MyCustomPanel />
+  </View>
+</SettingsSection>
+```
+
+### 20.3 适用范围
+- `app/chat/[id]/settings.tsx`
+- `app/chat/super_assistant/settings.tsx`
+- 任何处于 `src/features/**/settings/` 路径下的配置页
+
 
 
 ## 20. 机制显式化与去黑箱化 (Mechanism Visibility) 🔥
