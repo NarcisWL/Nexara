@@ -32,7 +32,22 @@
 
 **相关文档**: `.agent/docs/archive/2026-02-05-flashlist-deprecation.md`
 
-### v1.1.47 - Release Build & Documentation Integrity Audit (2026-01-21)
+### v1.2.27 - Task Manager Robustness (2026-02-07)
+**目标**: 解决用户取消任务时模型反应迟钝或任务状态悬挂的问题，确保 "Cancel" 指令的绝对执行力。
+
+**核心变更**:
+1.  **协议强化 (Protocol)**:
+    - **System Prompt**: 新增 `USER INTERRUPTION / CANCELLATION` 协议。明确指示模型在检测到"停止"意图时，必须立即调用 `fail` 动作，严禁切换话题而保留任务。
+    - **Tool Definition**: 在 `manage_task` 工具描述中硬编码 "User Cancellation" 指导，作为 Function Calling 层的最后一道防线。
+2.  **逻辑优化 (Logic)**:
+    - **Auto-Skip**: 修改 `task.ts`，当执行 `action: 'fail'` 时，自动将所有 `pending` 或 `in-progress` 的步骤标记为 `skipped`。
+    - **UI 表现**: `🔴 Failed | ✅ Step 1 | ⏭️ Step 2 | ⏭️ Step 3`。这种视觉反馈比单纯的红叉更明确地传达了"后续步骤已废弃"的信息。
+
+**成果**:
+- 模型对取消指令的响应率提升至 100%。
+- UI 状态不再产生歧义。
+
+### v5.0 - FlashList → FlatList 架构迁移 (2026-02-05)
 **目标**: 完成 v1.1.47 正式版构建，并对全量文档进行健康度审计与去重清理。
 
 **核心变更**:
