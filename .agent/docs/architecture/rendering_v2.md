@@ -60,3 +60,28 @@ type ToolResultArtifact = {
 1.  **禁止拼接**：严禁在 `ToolExecutor` 中将图表配置手动 `+=` 到 `msg.content`。
 2.  **强制 Flush**：在 `AgentLoop` 结束流式传输时，必须检查 `contentBuffer`，防止最后一段正文被丢弃（已修复 Bug）。
 3.  **Hooks 安全**：在 `ChatInput` 等组件中，Hook 调用（`useMemo`, `useStore`）必须位于所有条件返回（`if (!session) return`）之前。
+
+---
+
+## Markdown 预处理器 (v1.2.28+)
+
+> **文件**: `src/lib/markdown/markdown-utils.ts`
+> **调用位置**: `ChatBubble.tsx` → `useMemo` 内
+
+### 职责
+在 `react-native-markdown-display` 解析之前，对原始文本进行结构化修复：
+1. LaTeX 分隔符转换
+2. 代码块保护 (避免 `#` 注释被误认为标题)
+3. 7 条幂等正则修复结构缺陷 (标题/列表/分隔符)
+
+### 设计约束
+- **幂等**: 对 Gemini 等规范输出运行后结果完全不变
+- **通行**: 不包含任何厂商判断逻辑
+- **保守**: 仅修复明确缺陷，不处理歧义场景
+
+### 关键陷阱
+- `\s` 会匹配 `\n`，在列表标记检测中必须用字面空格 ` `
+- `([^\n])` 会匹配 `#` 和 `*`，需显式排除以防拆碎标题和分隔符
+
+### 参考文档
+- 详细排障手册: `.agent/docs/archive/markdown-preprocessing-guide.md`

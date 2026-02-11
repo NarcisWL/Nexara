@@ -18,6 +18,7 @@
 
 | ID | 任务名称 | 完成时间 | 实施方案 (Archive) | 验证结论 |
 | :--- | :--- | :--- | :--- | :--- |
+| **008** | **Markdown 预处理器修复** | 2026-02-11 | [markdown-preprocessing-guide.md](docs/archive/markdown-preprocessing-guide.md) | 7 条幂等正则，DeepSeek/Gemini 双模型验证通过。 |
 | **003** | **全局动画升级** | 2026-02-03 | [003_global_animation_upgrade_done.md](docs/archive/003_global_animation_upgrade_done.md) | 全面回归原生 (System Default/Fade)，移除 JS 动画。 |
 | **001** | **MCP SSE 传输支持** | 2026-02-03 | [001_mcp_sse_transport_plan_done.md](docs/archive/001_mcp_sse_transport_plan_done.md) | 单元测试通过 (4 pass)。代码已合入主线。 |
 

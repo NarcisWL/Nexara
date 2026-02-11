@@ -86,6 +86,7 @@
 | 组件名 | 路径 | 用途 |
 | :--- | :--- | :--- |
 | **`ChatBubble`** | `features/chat` | **消息核心** (Markdown, LaTeX, SVG, 代码高亮, 文献索引) |
+| **`markdown-utils`** | `lib/markdown` | **Markdown 预处理器** (LaTeX 转换 + 7 条幂等结构修复正则) |
 | **`ChatInput`** | `features/chat` | 增强输入框，支持多行自适应与附件预览 |
 | **`SuperAssistantFAB`** | `components/chat` | 超级助手悬浮入口，集成 HDR 粒子背景 |
 | **`InferencePresets`** | `components/chat` | 快速推理模板选择器 |
