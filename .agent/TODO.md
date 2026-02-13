@@ -30,6 +30,7 @@
 | ID | 任务名称 | 方案草稿 |
 | :--- | :--- | :--- |
 | **004** | **应用冷启动优化** | [004_app_cold_start_optimization.md](docs/todos/004_app_cold_start_optimization.md) |
+| **009** | **工具描述双通道去重** | [009_tool_prompt_dedup.md](docs/todos/009_tool_prompt_dedup.md) |
 
 ### Medium Priority
 | ID | 任务名称 | 方案草稿 |
@@ -37,6 +38,7 @@
 | **005** | **多模态 RAG** | [005_multimodal_rag.md](docs/todos/005_multimodal_rag.md) |
 | **006** | **性能监控** | [006_performance_monitoring.md](docs/todos/006_performance_monitoring.md) |
 | **007** | **Expo FS API 迁移** | [007_expo_fs_migration.md](docs/todos/007_expo_fs_migration.md) |
+| **010** | **MCP Server 连接池** | [010_mcp_connection_pool.md](docs/todos/010_mcp_connection_pool.md) |
 
 ---
 
