@@ -39,6 +39,16 @@
 - **字段继承**: 严格继承 `reasoning_content` (DeepSeek) 和 `thought_signature` (Gemini)。
 - **持久化**: 历史记录必须累积拆分后的消息，而非原始 Session。
 
+### 2.4 LLM 集成测试基建 (LLM Integration Testing) 🔥
+*详见 `.agent/memory/TESTING_GUIDE.md`*
+
+- **适用场景**: 所有涉及 LLM 连接、Prompt 调整、Tool Calling 逻辑的修改。
+- **强制要求**: 提交代码前，必须运行 `scripts/test-llm.ts` 验证核心逻辑。
+- **基础设施**:
+    - **脚本**: `scripts/test-llm.ts` (基于 `tsx` 直接运行，无需编译 App)。
+    - **配置**: `secure_env/test_api.json` (独立于 `env.d.ts`)。
+    - **原则**: 优先使用脚本测试业务逻辑闭环，避免在真机上反复试错。
+
 ---
 
 ## 3. 记忆与交接 (Memory & Handoff)

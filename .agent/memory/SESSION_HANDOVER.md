@@ -1,35 +1,30 @@
-# Session Handover
+# SESSION HANDOVER (2026-02-14)
 
-> **Last Update**: 2026-02-14
-> **Status**: Documentation Audit & Global Rules Optimization Completed
+## Done (v1.2.46)
+- **Refine Provider Form UI**:
+    - Replaced preset dropdown with a brand card grid.
+    - Added **Ollama** preset.
+    - Fixed icons for **Groq**, **GitHub Models**, **SiliconFlow**.
+- **Fixed Layout Issues**:
+    - Resolved `GlassHeader` TypeScript error.
+    - Resolved `CachedSvgUri` React state update warning.
+    - **Model Management**: Fixed the search bar and action buttons at the top so they don't scroll with the list. Adjusted padding to prevent overlap with `GlassHeader`.
+- **Integration Testing Infrastructure**:
+    - Created `scripts/test-llm.ts` for verifying LLM connectivity and tool calling without building the app.
+    - Configured `secure_env/test_api.json` templates.
+    - Patched `OpenAiClient` to support raw JSON schemas for tool definitions (fixing a crash during testing).
+    - Verified functionality with `zhipu-ai` provider: Chat Completion and Tool Calling pass.
 
-## 1. The Context (Where we are)
-我们刚刚完成了对 **Prompt Engineering** 和 **文档体系** 的深度审计与重构。
-- **Global**: `GEMINI.md` 已升级为 "v3.1"，引入了 **3-Pool Model Strategy** (Flash/Pro/Specialist) 和 **Rigorous Engineering Protocol**。
-- **Project**: `.agent/docs` 目录已完成标准化清洗，建立了以 `.agent/README.md` 为核心的索引体系。
+## Next Steps
+- [ ] Monitor the Android release build in the worktree.
+- [ ] Once the APK is built (`android/app/build/outputs/apk/release/app-release.apk`), verify its size and version.
+- [ ] Run `node --import tsx scripts/test-llm.ts --provider vertex-ai` (and others) to verify all providers.
+- [ ] Standardize error handling in `scripts/test-llm.ts` to be more robust.
 
-## 2. Completed Tasks (What we did)
-- [x] **Global Rules Refactor**: 
-    - 确立 "3-Pool" 模型分工策略。
-    - 引入 "Documentation as Code" 强制维护四大地图。
-- [x] **Documentation Cleanup**:
-    - 归档决策记录 (`ADR-002`) 和旧审计报告。
-    - 标准化指南文件名 (`ANDROID_BUILD_GUIDE` 等)。
-    - 迁移架构文档至 `architecture/` 子目录。
-- [x] **Git Submission**: Nexara 仓库的所有变更已推送至 `main`。
+## Risks
+- **Build Failures**: Gradle builds in worktrees can sometimes fail due to path length or caching issues. If the build fails, try a `npm run clean` in the worktree first.
+- **Provider API Changes**: Zhipu/DeepSeek API compatibility might drift; use `scripts/test-llm.ts` to detect regressions early.
 
-## 3. Next Steps (What to do next)
-1.  **环境验证 (Environment Check)**:
-    - 在 macOS 端拉取最新代码，验证 `worktrees/release` 构建流程是否受文档移动影响（检查脚本中的路径引用）。
-2.  **代码重构 (Code Refactoring)**:
-    - 继续 **Phase 15** (chat-store 模块化) 的 Phase 2 工作。
-3.  **全局配置备份**:
-    - 考虑初始化 `.gemini` 仓库或手动备份，防止本地配置丢失。
-
-## 4. Risks & Notes
-- **Local Config**: `/home/lengz/.gemini` 未进行 Git 版本控制，仅存在于 WSL 本地。
-- **Path Dependencies**: 请留意构建脚本中是否引用了旧的文档路径（虽然大多是文档，但需确认 `build-android-release` 脚本无硬编码文档路径）。
-
-## 5. Model Recommendation
-- **Next Task**: Android Build / Repo Sync
-- **Recommended Model**: `Gemini 3 Flash` (Infinite Pool) for routine checks; `Gemini 3 Pro` if encountering build errors.
+## Model Recommendation
+- Suggest using **Gemini 3 Flash** for routine testing and build monitoring.
+- Use **Gemini 3 Pro** or **Claude 3.5 Sonnet** if complex logic bugs are found in LLM client implementations.
