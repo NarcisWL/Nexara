@@ -53,6 +53,21 @@
 - **目录规范**: 所有架构图、流程图、Step计划必须存入 `.agent/docs/plans/{feature_name}/`。
 - **禁止**: 严禁将大段设计文档仅留在对话中。
 
+### 3.3 文档即代码 (Documentation as Code) 🔥
+*作为 Agent 的核心导航地图，必须与代码同步更新*
+
+- **核心地图 (The 4 Maps)**:
+    1. **`CODE_STRUCTURE.md`**: 全局架构与核心机制 (Sequence Diagrams)。
+    2. **`DATA_SCHEMA.md`**: 数据结构真理源 (Store/Types/DB)。
+    3. **`CORE_INTERFACES.md`**: 关键服务接口契约 (LLM/RAG)。
+    4. **`UI_KIT.md`**: 设计系统与组件规范。
+- **同步法则**:
+    - 修改 `src/types` 或 `src/store` -> 更新 `DATA_SCHEMA.md`。
+    - 修改 `src/lib` 接口 -> 更新 `CORE_INTERFACES.md`。
+    - 新增/修改 UI 组件 -> 更新 `UI_KIT.md`。
+    - 重构模块 -> 更新 `CODE_STRUCTURE.md`。
+- **强制性**: 视为 Code Review 的一部分。代码变了文档没变 = **PR 拒绝**。
+
 ---
 
 ## 4. 技术栈实施细则 (Implementation Details)

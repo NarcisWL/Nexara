@@ -1,8 +1,8 @@
-# Artifact Rendering Architecture (v2)
+# 工件渲染架构 (v2)
 
-> **Last Updated:** 2026-01-29
-> **Status:** Production
-> **Context:** Separates heavy rendering logic from chat bubbles to improve performance and persistence.
+> **最后更新:** 2026-01-29
+> **状态:** 生产环境 (Production)
+> **背景:** 将重型渲染逻辑从气泡中分离，以提升性能与持久化能力。
 
 ## 核心问题 (The Problem)
 
