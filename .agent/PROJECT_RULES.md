@@ -2,15 +2,15 @@
 
 > [!CAUTION]
 > **顶级红线指令 (Highest Priority Directive)**:
-> **严禁在项目根目录 (`/home/lengz/Nexara`) 构建发行包 (Release APK)！**
-> 发行包构建**永远且只能**在专用的 Worktree 编译工厂 (`/home/lengz/Nexara/worktrees/release`) 中进行。
+> **严禁在项目根目录 (Project Root) 构建发行包 (Release APK)！**
+> 发行包构建**永远且只能**在专用的 Worktree 编译工厂 (`../worktrees/release` 或 `worktrees/release`) 中进行。
 > 任何违反此规则的行为均被视为破坏开发/编译环境一致性的严重错误。本规则永久有效，不得以任何理由规避。
 
 ## 1. 项目概述
 
 - **项目名称**: NeuralFlow (Nexara)
 - **技术栈**: React Native (Expo) + TypeScript + Zustand + NativeWind
-- **环境**: WSL2 (Ubuntu) on Windows 11
+- **环境**: Hybrid (WSL2 Ubuntu / macOS)
 - **核心架构**:
     - **路由**: `expo-router` (File-based routing)
     - **状态**: `zustand` + `persist`
@@ -78,8 +78,8 @@
 ## 5. 发布与构建 (Release & Build)
 
 ### 5.1 双流水线 (Dual Pipeline)
-- **Dev 环境**: `/home/lengz/Nexara` (Debug Keystore)
-- **Release 环境**: `/home/lengz/Nexara/worktrees/release` (Release Keystore + Secure Env)
+- **Dev 环境**: Project Root (Debug Keystore)
+- **Release 环境**: `worktrees/release` (Release Keystore + Secure Env)
 
 ### 5.2 Gradle 卫生 (Gradle Hygiene)
 *继承全局规则 [Android] 模块*
