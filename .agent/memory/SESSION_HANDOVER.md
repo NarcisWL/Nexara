@@ -1,30 +1,23 @@
-# SESSION HANDOVER (2026-02-14)
+# SESSION HANDOVER (2026-02-15)
 
-## Done (v1.2.46)
-- **Refine Provider Form UI**:
-    - Replaced preset dropdown with a brand card grid.
-    - Added **Ollama** preset.
-    - Fixed icons for **Groq**, **GitHub Models**, **SiliconFlow**.
-- **Fixed Layout Issues**:
-    - Resolved `GlassHeader` TypeScript error.
-    - Resolved `CachedSvgUri` React state update warning.
-    - **Model Management**: Fixed the search bar and action buttons at the top so they don't scroll with the list. Adjusted padding to prevent overlap with `GlassHeader`.
-- **Integration Testing Infrastructure**:
-    - Created `scripts/test-llm.ts` for verifying LLM connectivity and tool calling without building the app.
-    - Configured `secure_env/test_api.json` templates.
-    - Patched `OpenAiClient` to support raw JSON schemas for tool definitions (fixing a crash during testing).
-    - Verified functionality with `zhipu-ai` provider: Chat Completion and Tool Calling pass.
+## Done (v1.2.47)
+- **UI Improvements**:
+    - **Provider Icons**: Fixed dark mode visibility issues by adding a generic light background to all dynamically loaded icons.
+    - **SVG Error Fix**: Resolved `openai-compatible` 404 error by mapping it to `openai` icon.
+    - **Thinking Block Scroll**: Fixed the issue where long thinking content in the timeline could not be scrolled. Replaced native ScrollView with `react-native-gesture-handler` and removed touch interception.
+- **Release**:
+    - Bumped version to `1.2.47`.
+    - Triggered release build in worktree (`android/app/build/outputs/apk/release/app-release.apk`).
 
 ## Next Steps
-- [ ] Monitor the Android release build in the worktree.
-- [ ] Once the APK is built (`android/app/build/outputs/apk/release/app-release.apk`), verify its size and version.
-- [ ] Run `node --import tsx scripts/test-llm.ts --provider vertex-ai` (and others) to verify all providers.
-- [ ] Standardize error handling in `scripts/test-llm.ts` to be more robust.
+- [ ] **Verify on Device**: Install the new APK and test the Thinking Block scrolling behavior on a real device.
+- [ ] **Provider Verification**: Continue testing other providers using `scripts/test-llm.ts` (e.g., Vertex AI).
+- [ ] **Error Handling**: Standardize error handling in `scripts/test-llm.ts`.
 
 ## Risks
-- **Build Failures**: Gradle builds in worktrees can sometimes fail due to path length or caching issues. If the build fails, try a `npm run clean` in the worktree first.
-- **Provider API Changes**: Zhipu/DeepSeek API compatibility might drift; use `scripts/test-llm.ts` to detect regressions early.
+- **Device Compatibility**: The nested scrolling fix (Thinking Block) relies on `react-native-gesture-handler`. Verify it works smoothly across different Android versions and device manufacturers.
+- **Build Failures**: Gradle builds in worktrees can sometimes fail due to path length or caching issues.
 
 ## Model Recommendation
 - Suggest using **Gemini 3 Flash** for routine testing and build monitoring.
-- Use **Gemini 3 Pro** or **Claude 3.5 Sonnet** if complex logic bugs are found in LLM client implementations.
+- Use **Gemini 3 Pro** if complex UI interaction bugs persist or new logic issues arise.
