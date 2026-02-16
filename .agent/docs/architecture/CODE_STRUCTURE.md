@@ -38,6 +38,8 @@
 │   │   ├── db/           # SQLite 数据库
 │   │   ├── i18n/         # 国际化支持
 │   │   └── skills/       # 工具/技能系统
+│   ├── native/           # 原生模块 (跨平台优化) 🔥
+│   │   └── VectorSearch/ # 向量搜索原生实现 (Android Java, iOS 待实现)
 │   ├── store/            # Zustand 状态管理 (持久化与安全加密)
 │   └── theme/            # 动态主题系统 (ThemeProvider)
 └── .agent/               # 项目记忆、工作流与架构指南 🔥
@@ -88,7 +90,36 @@ sequenceDiagram
     VectorQueue->>RagStore: updateStatus(标记为已完成)
 ```
 
-### 2.3 RAG 触发源映射 (Trigger Components)
+### 2.3 向量搜索流程 (Vector Search Flow)
+```mermaid
+sequenceDiagram
+    participant 用户
+    participant VectorStore
+    participant NativeModule
+    participant JSImplementation
+    participant SQLite
+
+    用户->>VectorStore: search(queryEmbedding, options)
+    VectorStore->>VectorStore: 检查原生模块可用性
+    
+    alt 原生模块可用
+        VectorStore->>NativeModule: searchVectors(query, candidates, threshold, limit)
+        NativeModule->>NativeModule: 计算余弦相似度
+        NativeModule->>NativeModule: 排序和过滤结果
+        NativeModule-->>VectorStore: 返回搜索结果
+    else 原生模块不可用
+        VectorStore->>JSImplementation: searchJS(query, candidates, threshold, limit)
+        JSImplementation->>JSImplementation: 计算余弦相似度
+        JSImplementation->>JSImplementation: 排序和过滤结果
+        JSImplementation-->>VectorStore: 返回搜索结果
+    end
+    
+    VectorStore->>SQLite: 获取向量元数据
+    SQLite-->>VectorStore: 返回完整向量记录
+    VectorStore-->>用户: 返回最终搜索结果
+```
+
+### 2.4 RAG 触发源映射 (Trigger Components)
 
 | 动作 | 触发源 (Component/Store) | 处理逻辑位置 | 备注 |
 | :--- | :--- | :--- | :--- |
@@ -97,6 +128,7 @@ sequenceDiagram
 | **KG 提取** | `vectorization-queue.ts` | `graph-extractor.ts` | 基于 `kgStrategy` |
 | **清理向量** | `GlobalRagConfigPanel.tsx` | `vector-store.ts` | 级联删除 |
 | **预设切换** | `ConfigPanel` | `settings-store.ts` | **SSOT**: `src/lib/rag/constants.ts` |
+| **向量搜索** | `ChatEngine.ts` / `RagStore.ts` | `vector-store.ts` -> 原生模块/JS 实现 | 支持自动降级 |
 
 ## 3. 架构准则
 

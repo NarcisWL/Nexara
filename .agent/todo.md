@@ -11,6 +11,9 @@
 | :--- | :--- | :--- | :--- | :--- |
 | **002** | **RAG 异步体验优化** | 🔴 High | [new_01_rag_async_optimization_plan.md](docs/todos/new_01_rag_async_optimization_plan.md) | **Step 1 Done** (Param Tuning). Pending Phase 2 (Prefetch). |
 | **---** | **工具链稳定性** | 🟡 Medium | N/A (Backlog) | 待修复 `build.gradle` patch 脚本问题。 |
+| **011** | **Nexara 全面优化方案 (Old)** | 🔴 High | N/A (Deleted) | **Audited**. Found hallucinations. Replaced by 012. |
+| **012** | **Nexara 架构优化实施方案 (v2)** | 🔴 High | [012_nexara_optimized_implementation_v1.md](docs/todos/012_nexara_optimized_implementation_v1.md) | **Phase 1 已回退**。Worklet 方案不可行，已规划原生 TurboModule 方案。 |
+| **013** | **Vector Search TurboModule** | 🔴 High | [vector-search-turbomodule-plan.md](docs/plans/vector-search-turbomodule-plan.md) | **规划完成**。待实施。预计 7.5h。 |
 
 ---
 

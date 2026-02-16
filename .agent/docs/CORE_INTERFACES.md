@@ -146,3 +146,45 @@ class VectorizationQueue {
   ): Promise<void>;
 }
 ```
+
+### 2.4 原生向量搜索模块 (`src/native/VectorSearch`)
+*跨平台原生向量相似度计算模块，支持自动降级。*
+
+```typescript
+/**
+ * 向量搜索结果接口
+ */
+interface VectorSearchResult {
+  id: string;
+  similarity: number;
+}
+
+/**
+ * 向量搜索候选接口
+ */
+interface VectorSearchCandidate {
+  id: string;
+  embedding: Float32Array;
+}
+
+/**
+ * 执行向量相似度搜索
+ * @param queryEmbedding 查询向量
+ * @param candidates 候选向量列表
+ * @param threshold 相似度阈值
+ * @param limit 结果数量限制
+ * @returns 排序后的搜索结果
+ */
+export async function searchVectors(
+  queryEmbedding: Float32Array,
+  candidates: VectorSearchCandidate[],
+  threshold: number = 0.7,
+  limit: number = 5
+): Promise<VectorSearchResult[]>;
+
+/**
+ * 检测原生模块是否可用
+ * @returns 是否可用
+ */
+export function isNativeModuleAvailable(): boolean;
+```
