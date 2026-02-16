@@ -1,5 +1,15 @@
 # Nexara Changelog
 
+## v1.2.54 (2026-02-17)
+- **Fix**: 时间轴组件滚动穿透修复
+  - 添加手势响应者拦截，防止滚动事件穿透到外层消息列表
+  - 禁用 ScrollView 的 bounces 和 overScrollMode，防止边界回弹触发外层滚动
+  - 添加滚动边界检测，在到达顶部/底部时正确处理滚动事件
+- **Build**: 优化 APK 打包配置
+  - 配置 ndk.abiFilters 只打包 arm64-v8a 架构
+  - 移除 32 位 ARM (armeabi-v7a) 和 x86 模拟器库
+  - 预计 APK 体积减少约 30-40%
+
 ## v1.2.32 (2026-02-17)
 - **Fix**: 核心会话页面性能优化 (Phase 1 & 2)
   - **renderItem useCallback**: 会话详情页和会话列表页的 renderItem 提取为 useCallback
