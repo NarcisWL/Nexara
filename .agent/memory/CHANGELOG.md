@@ -1,5 +1,14 @@
 # Nexara Changelog
 
+## v1.2.55 (2026-02-17)
+- **Fix**: ChatInput 焦点状态视觉效果修复
+  - 添加 Keyboard.addListener('keyboardDidHide') 监听
+  - 键盘消失时自动重置焦点状态和动画
+- **Docs**: 新增服务商管理界面审计报告 (`docs/archive/provider-management-audit-2026-02-17.md`)
+  - 审计范围：ProviderList、ProviderFormScreen、ProviderModelsScreen
+  - 整体评分：A- (优秀，有微小改进空间)
+  - 发现问题：输入框无焦点动画、保存按钮无点击动画、预设卡片无入场动画
+
 ## v1.2.54 (2026-02-17)
 - **Fix**: 时间轴组件滚动穿透修复
   - 添加手势响应者拦截，防止滚动事件穿透到外层消息列表
