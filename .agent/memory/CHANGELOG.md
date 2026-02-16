@@ -1,5 +1,16 @@
 # Nexara Changelog
 
+## v1.2.32 (2026-02-17)
+- **Fix**: 核心会话页面性能优化 (Phase 1 & 2)
+  - **renderItem useCallback**: 会话详情页和会话列表页的 renderItem 提取为 useCallback
+  - **FlatList 配置**: 会话列表页添加 getItemLayout、removeClippedSubviews、maxToRenderPerBatch 等优化配置
+  - **内存泄漏修复**: ChatBubble 中 `(React as any)._aiImages` 全局变量替换为 useMemo
+  - **计算优化**: reversedMessages 和 latestAssistantIndex 提取到组件顶层
+  - **输入框焦点动画**: ChatInput 添加 onFocus/onBlur 焦点状态动画，边框颜色渐变 + 阴影效果
+  - **列表项入场动画**: SwipeableSessionItem 添加 FadeIn.duration(200) 入场动画
+  - **子组件 memo**: LoadingDots、MessageMeta、RagReferencesChip、RagReferencesList 添加 React.memo
+- **Docs**: 新增核心会话页面审计报告 (`docs/archive/chat-page-audit-2026-02-17.md`)
+
 ## v1.2.31 (2026-02-17)
 - **Fix**: 知识图谱系统全面修复
   - **边去重**: `createEdge` 新增去重逻辑，相同边累加权重而非重复创建
