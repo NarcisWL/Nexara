@@ -1,31 +1,25 @@
-# SESSION HANDOVER (2026-02-16)
+# SESSION HANDOVER (2026-02-17)
 
-## Done (v1.2.48)
-- **UI Improvements**:
-    - **Provider Icons**: Fixed dark mode visibility issues by adding a generic light background to all dynamically loaded icons.
-    - **SVG Error Fix**: Resolved `openai-compatible` 404 error by mapping it to `openai` icon.
-    - **Thinking Block Scroll**: Fixed the issue where long thinking content in the timeline could not be scrolled. Replaced native ScrollView with `react-native-gesture-handler` and removed touch interception.
-- **Audit & Planning**:
-    - **Optimization Plan Audit**: Audited `nexara-optimization-plan.md`, identified hallucinations, and deleted incorrect files.
-    - **New Implementation Plan**: Created and refined `docs/todos/012_nexara_optimized_implementation_v1.md` (v2) with user input.
-    - **Executability Check**: Verified `package.json` and `babel.config.js` support for Worklets (Phase 1).
-- **Phase 1 Implementation**:
-    - **Worklet Evaluation**: Attempted `react-native-worklets` integration but found data transfer limitations causing crashes.
-    - **Native Module Implementation**: Successfully implemented Android Java native module for vector search optimization.
-    - **Auto-fallback Mechanism**: Added detection and auto-fallback to JS implementation in `VectorStore`.
-    - **Compilation & Testing**: Cleaned and rebuilt native project, successfully installed APK on device PKH110.
+## Done (v1.2.29)
+- **Library UI Performance Audit**:
+    - **PortalCards**: Extracted from inline definition to standalone `memo` component with props-based data flow
+    - **List Item Animations**: Reduced `FadeIn/FadeOut` durations from 200ms/150ms to 120ms/80ms for smoother scrolling
+    - **RagStatusIndicator**: Implemented on-demand breathing animation with `cancelAnimation` when idle
+    - **KnowledgeGraphView**: Added `HTML_TEMPLATE_CACHE` for theme-based HTML template caching
+    - **Batch Action Toolbar**: Added `SlideInUp/SlideOutDown` spring animations for better UX
+- **Documentation**:
+    - Created comprehensive audit report at `docs/archive/library-audit-2026-02-17.md`
+    - Updated `CHANGELOG.md` with v1.2.29 changes
 
 ## Next Steps
-- [ ] **Phase 2 Preparation**: Begin planning Phase 2 optimizations based on Phase 1 results.
-- [ ] **iOS Implementation**: Add Objective-C++ native module support for iOS platform.
-- [ ] **C++ Optimization**: Evaluate C++ JNI implementation for further performance improvements.
-- [ ] **Release Build**: Compile and test release package with the new vector search optimizations.
+- [ ] **Chat Interface Audit**: Continue performance audit for Chat interface (second of three main tabs)
+- [ ] **Settings Interface Audit**: Performance audit for Settings interface (third of three main tabs)
+- [ ] **Cross-tab Navigation**: Evaluate navigation performance between tabs
 
 ## Risks
-- **Native Module Compatibility**: Expo prebuild may reset native module configurations. Document manual setup steps.
-- **Cross-platform Consistency**: Ensure vector search behavior matches across Android, iOS, and JS fallback implementations.
-- **Performance Monitoring**: Monitor vector search performance with large datasets to ensure optimizations are effective.
+- **Animation Timing**: Reduced animation durations may feel too fast for some users - consider making configurable
+- **HTML Cache Memory**: `HTML_TEMPLATE_CACHE` grows unbounded - consider adding LRU eviction if memory becomes an issue
 
 ## Model Recommendation
-- **Gemini 3 Flash**: Suitable for routine implementation tasks and documentation updates.
-- **Gemini 3 Pro**: Use for complex debugging of native module issues or performance optimization tasks.
+- **Gemini 3 Flash**: Suitable for continued UI audit and optimization tasks
+- **Gemini 3 Pro**: Use for complex performance profiling or native module debugging
