@@ -1,5 +1,11 @@
 # Nexara Changelog
 
+## v1.2.57 (2026-02-17)
+- **Fix**: 会话标题自动命名触发条件修复
+  - 修复 messages.length 判断：首次对话完成后消息数为 2，调整为 `<= 2`
+  - 修复默认标题判断：新增中文"新会话"检测
+  - 新增 startsWith 检测，覆盖"新会话 xxx"等变体
+
 ## v1.2.56 (2026-02-17)
 - **Feat**: 服务商管理界面动画优化
   - ProviderFormScreen: 预设卡片入场动画 (FadeInDown + stagger)
