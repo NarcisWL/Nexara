@@ -1,7 +1,7 @@
 # Nexara Project Dashboard
 
 > **单一事实来源 (SSOT)**: 
-> 本文档仅作为仪表盘。具体实施细节请查阅 [.agent/docs/todos](docs/todos) 下的方案文档。
+> 本文档仅作为仪表盘。具体实施细节请查阅 `.agent/docs/plans` 下的方案文档。
 
 ---
 
@@ -9,11 +9,16 @@
 
 | ID | 任务名称 | 优先级 | 对应方案文档 | 当前进度 |
 | :--- | :--- | :--- | :--- | :--- |
-| **002** | **RAG 异步体验优化** | 🔴 High | [new_01_rag_async_optimization_plan.md](docs/todos/new_01_rag_async_optimization_plan.md) | **Step 1 Done** (Param Tuning). Pending Phase 2 (Prefetch). |
-| **---** | **工具链稳定性** | 🟡 Medium | N/A (Backlog) | 待修复 `build.gradle` patch 脚本问题。 |
-| **011** | **Nexara 全面优化方案 (Old)** | 🔴 High | N/A (Deleted) | **Audited**. Found hallucinations. Replaced by 012. |
-| **012** | **Nexara 架构优化实施方案 (v2)** | 🔴 High | [012_nexara_optimized_implementation_v1.md](docs/todos/012_nexara_optimized_implementation_v1.md) | **Phase 1 已回退**。Worklet 方案不可行，已规划原生 TurboModule 方案。 |
-| **013** | **Vector Search TurboModule** | 🔴 High | [vector-search-turbomodule-plan.md](docs/plans/vector-search-turbomodule-plan.md) | **规划完成**。待实施。预计 7.5h。 |
+| **014** | **架构优化方案 v3** | 🔴 High | [nexara-architecture-optimization-v3.md](docs/plans/nexara-architecture-optimization-v3.md) | **规划完成**，待实施。预计 14.5h。 |
+
+### 子任务分解
+
+| Phase | 任务 | 工作量 | 状态 |
+|-------|------|--------|------|
+| 0 | Vector Search TurboModule | 7.5h | 📋 待实施 |
+| 1 | Audit Logging | 3h | 📋 待实施 |
+| 2 | PDF Robustness | 3h | 📋 待实施 |
+| 3 | 扩展功能面板集成 | 1h | 📋 待实施 |
 
 ---
 
@@ -21,6 +26,7 @@
 
 | ID | 任务名称 | 完成时间 | 实施方案 (Archive) | 验证结论 |
 | :--- | :--- | :--- | :--- | :--- |
+| **---** | **移动端视觉与性能审计** | 2026-02-17 | [mobile-visual-performance-audit-2026-02-17.md](docs/plans/mobile-visual-performance-audit-2026-02-17.md) | 16项修复完成，6项跳过。版本 v1.2.64-v1.2.73 |
 | **008** | **Markdown 预处理器修复** | 2026-02-11 | [markdown-preprocessing-guide.md](docs/archive/markdown-preprocessing-guide.md) | 7 条幂等正则，DeepSeek/Gemini 双模型验证通过。 |
 | **003** | **全局动画升级** | 2026-02-03 | [003_global_animation_upgrade_done.md](docs/archive/003_global_animation_upgrade_done.md) | 全面回归原生 (System Default/Fade)，移除 JS 动画。 |
 | **001** | **MCP SSE 传输支持** | 2026-02-03 | [001_mcp_sse_transport_plan_done.md](docs/archive/001_mcp_sse_transport_plan_done.md) | 单元测试通过 (4 pass)。代码已合入主线。 |
@@ -46,7 +52,15 @@
 ---
 
 ## 🗄️ 归档历史
-> 2026-02-03 以前的历史任务请查看 Git Log 或旧版归档。
+
+### 已废弃方案
+| ID | 任务名称 | 废弃原因 |
+| :--- | :--- | :--- |
+| **011** | Nexara 全面优化方案 (Old) | 发现幻觉内容，已替换为 014 |
+| **012** | Nexara 架构优化 v2 | Worklet 方案不可行，已更新为 v3 |
+| **013** | Vector Search TurboModule | 已合并到 014 Phase 0 |
+
+### 历史完成
 - [x] **本地模型落地**: `llama.rn` 集成 (v1.2.0)
 - [x] **Markdown 渲染引擎重构**: Webview 迁移 (v.1.1.0)
 - [x] **v1 动画策略**: [000_animation_v1_strategy.md](docs/archive/000_animation_v1_strategy.md)
