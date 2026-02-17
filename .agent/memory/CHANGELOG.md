@@ -1,5 +1,14 @@
 # Nexara Changelog
 
+## v1.2.56 (2026-02-17)
+- **Feat**: 服务商管理界面动画优化
+  - ProviderFormScreen: 预设卡片入场动画 (FadeInDown + stagger)
+  - ProviderFormScreen: 保存按钮点击缩放动画 + 加载状态
+  - ProviderFormScreen: 输入框焦点边框颜色渐变动画
+  - ProviderModelsScreen: 模型卡片入场动画 (FadeIn)
+  - ProviderModelsScreen: TypeButton/CapabilityTag 颜色过渡动画
+  - ProviderModelsScreen: TypeButton/CapabilityTag 添加 React.memo
+
 ## v1.2.55 (2026-02-17)
 - **Fix**: ChatInput 焦点状态视觉效果修复
   - 添加 Keyboard.addListener('keyboardDidHide') 监听
