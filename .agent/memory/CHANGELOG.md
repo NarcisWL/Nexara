@@ -1,5 +1,15 @@
 # Nexara Changelog
 
+## v1.2.66 (2026-02-17)
+- **Fix**: 全局 Worklet 变量访问问题（P0 审计修复）
+  - 修复 Switch 组件 worklet 中访问 JS 线程变量
+  - 修复 AnimatedSearchBar 组件 worklet 变量访问
+  - 修复 AnimatedInput 组件 worklet 变量访问
+  - 修复 ProviderFormScreen 输入框焦点动画 worklet 变量访问
+- **Improve**: ThemedSlider 添加 `useSlidingComplete` 选项
+  - 支持滑动完成后再更新 Store，避免高频更新导致的性能问题
+  - 默认保持原有行为（实时更新），可选启用优化模式
+
 ## v1.2.65 (2026-02-17)
 - **Fix**: 输入栏重写模式性能问题
   - 修复 `focusAnimatedStyle` worklet 无法访问 JS 线程变量的问题
