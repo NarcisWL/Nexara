@@ -1,5 +1,10 @@
 # Nexara Changelog
 
+## v1.2.59 (2026-02-17)
+- **Fix**: 会话标题自动命名触发条件修复
+- **Fix**: ProviderModelsScreen 浅色模式标签高亮色修复
+- **Feat**: 服务商管理界面动画优化
+
 ## v1.2.58 (2026-02-17)
 - **Fix**: ProviderModelsScreen 浅色模式标签高亮色不可见问题
   - TypeButton: 使用 rgb() 格式替代 rgba()，通过 opacity 控制透明度
