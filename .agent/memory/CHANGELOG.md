@@ -1,5 +1,13 @@
 # Nexara Changelog
 
+## v1.2.68 (2026-02-17)
+- **Fix**: Marquee 使用旧版 Animated API（P3 审计修复）
+  - 迁移到 Reanimated 的 useSharedValue + withTiming
+  - 添加动画清理逻辑，避免内存泄漏
+- **Fix**: CollapsibleSection 双重渲染（P3 审计修复）
+  - 添加 `measured` 状态，测量完成后不再渲染测量层
+  - 减少 50% 的 children 渲染开销
+
 ## v1.2.67 (2026-02-17)
 - **Fix**: Haptics 调用延迟不一致（P2 审计修复）
   - 移除 ContextManagementPanel 中多余的 setTimeout 包装
