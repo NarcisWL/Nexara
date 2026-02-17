@@ -1,5 +1,11 @@
 # Nexara Changelog
 
+## v1.2.73 (2026-02-17)
+- **Improve**: 内联样式优化（P2 审计修复）
+  - 重构 RagReferencesList 组件，将内联样式提取为 useMemo + StyleSheet
+  - 使用 Spacing 常量替代硬编码数值
+  - 减少每次渲染时的样式对象创建开销
+
 ## v1.2.72 (2026-02-17)
 - **Improve**: 间距 Token 统一（P2 审计修复）
   - 创建 `Spacing` 和 `SpacingPresets` 常量
