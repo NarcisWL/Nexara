@@ -1,5 +1,11 @@
 # Nexara Changelog
 
+## v1.2.70 (2026-02-17)
+- **Improve**: 阴影参数统一（P2 审计修复）
+  - 创建 `Shadows` 常量，统一管理阴影样式
+  - 支持 `sm`、`md`、`lg`、`glow` 四种阴影规格
+  - 更新 GlassBottomSheet、GlassAlert、Switch、ContextMenu、FloatingTextEditorModal、FloatingCodeEditorModal 使用统一常量
+
 ## v1.2.69 (2026-02-17)
 - **Fix**: ChatBubble LoadingDots 动画未显式清理（P2 审计修复）
   - 添加 `cancelAnimation` 清理逻辑，避免组件卸载后动画继续运行
