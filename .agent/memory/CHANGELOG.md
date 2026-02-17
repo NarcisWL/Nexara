@@ -1,5 +1,12 @@
 # Nexara Changelog
 
+## v1.2.61 (2026-02-17)
+- **Feat**: 中文智能换行增强
+  - 新增 `addChineseLineBreaks` 函数，针对低参数模型输出的无换行长文本
+  - 检测句末标点（。！？；）后智能插入换行
+  - 幂等设计：对已正确排版的内容不产生影响
+  - 保护代码块和行内代码不被误处理
+
 ## v1.2.60 (2026-02-17)
 - **Fix**: CapabilityTag 激活态 opacity 计算错误修复
   - 修复 opacity 公式：`0.15 + progress * 0.15` → `0.05 + progress * 0.95`
