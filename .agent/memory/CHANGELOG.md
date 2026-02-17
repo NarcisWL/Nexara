@@ -1,5 +1,13 @@
 # Nexara Changelog
 
+## v1.2.65 (2026-02-17)
+- **Fix**: 输入栏重写模式性能问题
+  - 修复 `focusAnimatedStyle` worklet 无法访问 JS 线程变量的问题
+  - 预先计算颜色值再传入 worklet，避免每次渲染时的性能开销
+- **Improve**: 输入框扩展高度从 120px 增加到 240px（约 10 行）
+- **Improve**: 添加 `textAlignVertical: 'top'` 修复 Android 多行文本垂直居中问题
+- **Improve**: 添加 `scrollEnabled` 支持超长文本滚动
+
 ## v1.2.64 (2026-02-17)
 - **Fix**: 模型标签浅色模式高亮色不可见问题（根本原因修复）
   - 修复 `useAnimatedStyle` worklet 无法访问 JS 线程变量的问题
