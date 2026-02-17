@@ -1,5 +1,10 @@
 # Nexara Changelog
 
+## v1.2.60 (2026-02-17)
+- **Fix**: CapabilityTag 激活态 opacity 计算错误修复
+  - 修复 opacity 公式：`0.15 + progress * 0.15` → `0.05 + progress * 0.95`
+  - 激活态 opacity 从 0.30 修正为 1.0，浅色模式标签可见
+
 ## v1.2.59 (2026-02-17)
 - **Fix**: 会话标题自动命名触发条件修复
 - **Fix**: ProviderModelsScreen 浅色模式标签高亮色修复
