@@ -1,5 +1,11 @@
 # Nexara Changelog
 
+## v1.2.72 (2026-02-17)
+- **Improve**: 间距 Token 统一（P2 审计修复）
+  - 创建 `Spacing` 和 `SpacingPresets` 常量
+  - 遵循 Tailwind CSS 规范，每单位 = 4px
+  - 更新 SettingsItem、CollapsibleSection、GlassBottomSheet、ContextMenu、Switch 使用统一常量
+
 ## v1.2.71 (2026-02-17)
 - **Improve**: 边框颜色统一（P2 审计修复）
   - 创建 `Borders` 常量，统一管理边框颜色
