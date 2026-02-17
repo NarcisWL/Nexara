@@ -1,5 +1,11 @@
 # Nexara Changelog
 
+## v1.2.64 (2026-02-17)
+- **Fix**: 模型标签浅色模式高亮色不可见问题（根本原因修复）
+  - 修复 `useAnimatedStyle` worklet 无法访问 JS 线程变量的问题
+  - 将颜色值在组件渲染时预先计算，再传入 worklet
+  - 影响 TypeButton（聊天/推理/图像生成/向量/重排序）和 CapabilityTag 组件
+
 ## v1.2.63 (2026-02-17)
 - **Fix**: 模型标签浅色模式高亮色不可见问题
   - 修复 `interpolateColor` 混合 hex 和 rgb 格式时的兼容性问题
