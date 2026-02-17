@@ -1,5 +1,11 @@
 # Nexara Changelog
 
+## v1.2.63 (2026-02-17)
+- **Fix**: 模型标签浅色模式高亮色不可见问题
+  - 修复 `interpolateColor` 混合 hex 和 rgb 格式时的兼容性问题
+  - 将 `colors[500]` (hex) 转换为 `rgb()` 格式后再进行颜色插值
+  - 影响 TypeButton 和 CapabilityTag 组件
+
 ## v1.2.62 (2026-02-17)
 - **Fix**: 会话工具箱面板高度跳变问题
   - 将 `GlassBottomSheet` 高度从固定 `80%` 改为 `auto` 自适应
