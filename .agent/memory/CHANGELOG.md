@@ -1,5 +1,11 @@
 # Nexara Changelog
 
+## v1.2.71 (2026-02-17)
+- **Improve**: 边框颜色统一（P2 审计修复）
+  - 创建 `Borders` 常量，统一管理边框颜色
+  - 支持 `primary`、`subtle`、`glass` 三种边框样式
+  - 更新 CollapsibleSection、AnimatedSearchBar、SettingsItem、GlassBottomSheet、GlassAlert 使用统一常量
+
 ## v1.2.70 (2026-02-17)
 - **Improve**: 阴影参数统一（P2 审计修复）
   - 创建 `Shadows` 常量，统一管理阴影样式
