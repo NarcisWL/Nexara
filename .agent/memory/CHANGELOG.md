@@ -1,5 +1,11 @@
 # Nexara Changelog
 
+## v1.2.58 (2026-02-17)
+- **Fix**: ProviderModelsScreen 浅色模式标签高亮色不可见问题
+  - TypeButton: 使用 rgb() 格式替代 rgba()，通过 opacity 控制透明度
+  - CapabilityTag: 同样使用 rgb() 格式 + opacity 组合
+  - 修复 interpolateColor 不支持带透明度 hex 格式的问题
+
 ## v1.2.57 (2026-02-17)
 - **Fix**: 会话标题自动命名触发条件修复
   - 修复 messages.length 判断：首次对话完成后消息数为 2，调整为 `<= 2`
