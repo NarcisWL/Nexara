@@ -1,5 +1,13 @@
 # Nexara Changelog
 
+## v1.2.67 (2026-02-17)
+- **Fix**: Haptics 调用延迟不一致（P2 审计修复）
+  - 移除 ContextManagementPanel 中多余的 setTimeout 包装
+  - lib/haptics 已内置 10ms 延迟，无需双重延迟
+- **Fix**: ModelPicker 搜索无防抖（P2 审计修复）
+  - 添加 150ms 防抖，避免输入时频繁过滤导致卡顿
+  - 分离 searchQuery（显示值）和 debouncedQuery（过滤值）
+
 ## v1.2.66 (2026-02-17)
 - **Fix**: 全局 Worklet 变量访问问题（P0 审计修复）
   - 修复 Switch 组件 worklet 中访问 JS 线程变量
