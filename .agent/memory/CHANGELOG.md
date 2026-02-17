@@ -1,5 +1,11 @@
 # Nexara Changelog
 
+## v1.2.69 (2026-02-17)
+- **Fix**: ChatBubble LoadingDots 动画未显式清理（P2 审计修复）
+  - 添加 `cancelAnimation` 清理逻辑，避免组件卸载后动画继续运行
+- **Skip**: ToolExecutionTimeline 虚拟化 - 滚动逻辑复杂，迁移风险高
+- **Skip**: RagReferences 虚拟化 - 引用列表通常较短，且有进入/退出动画
+
 ## v1.2.68 (2026-02-17)
 - **Fix**: Marquee 使用旧版 Animated API（P3 审计修复）
   - 迁移到 Reanimated 的 useSharedValue + withTiming
