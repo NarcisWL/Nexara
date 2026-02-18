@@ -1,5 +1,13 @@
 # Nexara Changelog
 
+## v1.2.75 (2026-02-18)
+- **Improve**: PDF Robustness 大文件支持（Phase 2 架构优化）
+  - 新增 `extractTextFromUri` 方法，支持直接从文件 URI 提取
+  - 大文件 (>5MB) 自动切换到临时文件 + URI 模式
+  - 添加 60 秒超时保护
+  - 自动清理临时文件
+  - 支持 WebView 文件访问权限配置
+
 ## v1.2.74 (2026-02-18)
 - **Feature**: Audit Logging 系统（Phase 1 架构优化）
   - 新增 `audit_logs` 数据库表，支持安全审计追踪
