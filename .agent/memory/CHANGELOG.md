@@ -1,5 +1,13 @@
 # Nexara Changelog
 
+## v1.2.74 (2026-02-18)
+- **Feature**: Audit Logging 系统（Phase 1 架构优化）
+  - 新增 `audit_logs` 数据库表，支持安全审计追踪
+  - 创建 `audit-service.ts`，实现批量异步写入
+  - 注入审计日志到文件系统技能（write/read/list）
+  - 支持按会话、操作类型、时间范围查询
+- **Note**: Vector Search TurboModule 已在前期实现完成
+
 ## v1.2.73 (2026-02-17)
 - **Improve**: 内联样式优化（P2 审计修复）
   - 重构 RagReferencesList 组件，将内联样式提取为 useMemo + StyleSheet
